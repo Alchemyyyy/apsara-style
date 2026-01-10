@@ -1,0 +1,40 @@
+:root {
+  --as-black: #111111;
+  --as-bg: #fafafa;
+  --as-gray: #b5b5b5;
+  --as-gold: #c6a97a;
+}
+
+body {
+  background: var(--as-bg);
+  color: var(--as-black);
+}
+
+.brand-wordmark {
+  letter-spacing: 0.25em;
+  font-weight: 600;
+}
+
+.btn-as {
+  background: var(--as-black);
+  color: white;
+  border: 1px solid var(--as-black);
+}
+.btn-as:hover {
+  background: #000;
+  color: white;
+}
+
+.link-muted {
+  color: #444;
+  text-decoration: none;
+}
+.link-muted:hover {
+  color: #000;
+}
+
+.card-minimal {
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+}

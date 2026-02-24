@@ -8,6 +8,9 @@ import OrdersView from '@/views/OrdersView.vue'
 import OrderDetailView from '@/views/OrderDetailView.vue'
 import SearchView from '@/views/SearchView.vue'
 import StylistView from '@/views/StylistView.vue'
+import AdminLoginView from '@/views/admin/AdminLoginView.vue'
+import AdminProductsView from '@/views/admin/AdminProductsView.vue'
+import AdminAnalyticsView from '@/views/admin/AdminAnalyticsView.vue'
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
@@ -19,6 +22,9 @@ const routes = [
   { path: '/orders/:id', name: 'orderDetail', component: OrderDetailView, props: true },
   { path: '/search', name: 'search', component: SearchView },
   { path: '/stylist', name: 'stylist', component: StylistView },
+  { path: '/admin', name: 'adminLogin', component: AdminLoginView },
+  { path: '/admin/products', name: 'adminProducts', component: AdminProductsView },
+  { path: '/admin/analytics', name: 'adminAnalytics', component: AdminAnalyticsView },
 
 ]
 

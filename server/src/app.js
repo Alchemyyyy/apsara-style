@@ -11,6 +11,8 @@ const eventsRoutes = require("./routes/events.routes");
 const searchRoutes = require("./routes/search.routes");
 const recommendationsRoutes = require("./routes/recommendations.routes");
 const stylistRoutes = require("./routes/stylist.routes");
+const adminRoutes = require("./routes/admin.routes");
+const adminAnalyticsRoutes = require("./routes/adminAnalytics.routes");
 
 const app = express();
 
@@ -29,6 +31,8 @@ app.use("/api/events", eventsRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/recommendations", recommendationsRoutes);
 app.use("/api/stylist", stylistRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/admin/analytics", adminAnalyticsRoutes);
 
 // Basic error handler (keep simple now)
 app.use((err, req, res, next) => {

@@ -38,3 +38,24 @@ body {
   border-radius: 16px;
   overflow: hidden;
 }
+
+.admin-panel-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.9rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.admin-table-card .table thead th {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  border-bottom-width: 1px;
+}
+
+.admin-table-card .table > :not(caption) > * > * {
+  padding-top: 0.72rem;
+  padding-bottom: 0.72rem;
+  vertical-align: middle;
+}

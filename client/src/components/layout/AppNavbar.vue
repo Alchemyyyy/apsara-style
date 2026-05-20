@@ -1,36 +1,259 @@
 <template>
-  <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
-    <div class="container py-2">
-      <RouterLink class="navbar-brand brand-wordmark" to="/">APSARA STYLE</RouterLink>
+  <nav class="navbar navbar-expand-lg sticky-top app-navbar">
+    <div class="container nav-shell">
+      <RouterLink class="navbar-brand brand-left mb-0" to="/">
+        <span class="brand-title">APSARA STYLE</span>
+      </RouterLink>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <ul class="navbar-nav d-none d-lg-flex center-nav">
+        <li
+          v-for="item in desktopNavItems"
+          :key="item.key"
+          class="nav-item center-item"
+          @mouseenter="openNavMenu(item.key)"
+          @mouseleave="scheduleCloseNavMenu"
+        >
+          <RouterLink
+            class="nav-link center-link"
+            :class="{ 'is-active-main': item.gender && activeGender === item.gender }"
+            :to="item.to"
+          >
+            {{ item.label }}
+          </RouterLink>
+
+          <transition name="nav-dropdown-fade">
+            <div
+              v-if="hoverNav === item.key"
+              class="nav-mega-dropdown"
+              @mouseenter="openNavMenu(item.key)"
+              @mouseleave="scheduleCloseNavMenu"
+            >
+              <div class="dropdown-grid">
+                <div v-for="(column, idx) in dropdownColumnsFor(item)" :key="`${item.key}-col-${idx}`" class="dropdown-col">
+                  <RouterLink
+                    v-for="link in column"
+                    :key="`${item.key}-${link.label}`"
+                    class="dropdown-link"
+                    :to="link.to"
+                  >
+                    {{ link.label }}
+                  </RouterLink>
+                </div>
+              </div>
+            </div>
+          </transition>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto d-none d-lg-flex flex-row align-items-center action-nav">
+        <li class="nav-item">
+          <form class="search-inline" @submit.prevent="goSearch">
+            <div class="search-inline-wrap">
+              <svg class="search-ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+                <path d="M20 20L16.6 16.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+              </svg>
+              <input
+                class="form-control form-control-sm search-input"
+                v-model="q"
+                placeholder="search"
+                aria-label="Search products"
+              />
+            </div>
+          </form>
+        </li>
+
+        <li class="nav-item notification-item" ref="notificationRoot">
+          <button
+            class="nav-link icon-link plain-icon d-inline-flex align-items-center justify-content-center notification-toggle"
+            type="button"
+            aria-label="Notifications"
+            title="Notifications"
+            @click.stop="toggleNotifications"
+          >
+            <svg class="nav-ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 3C9.8 3 8 4.8 8 7V10.1C8 11.2 7.6 12.3 6.9 13.2L5.7 14.8C5.3 15.4 5.7 16.2 6.4 16.2H17.6C18.3 16.2 18.7 15.4 18.3 14.8L17.1 13.2C16.4 12.3 16 11.2 16 10.1V7C16 4.8 14.2 3 12 3Z" stroke="currentColor" stroke-width="1.9" />
+              <path d="M10.2 18C10.5 19 11.2 19.5 12 19.5C12.8 19.5 13.5 19 13.8 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
+            </svg>
+            <span v-if="unreadCount > 0" class="notification-count-badge">{{ unreadCountText }}</span>
+            <span class="visually-hidden">Notifications</span>
+          </button>
+
+          <transition name="notify-pop">
+            <div v-if="showNotifications" class="notification-menu" @click.stop>
+              <div class="notification-head">
+                <h6 class="notification-title mb-0">Notifications</h6>
+                <button
+                  v-if="unreadCount > 0"
+                  class="btn btn-link btn-sm notification-mark-all"
+                  type="button"
+                  @click="handleMarkAllNotificationsRead"
+                >
+                  Mark all read
+                </button>
+              </div>
+
+              <p v-if="notificationsLoading" class="notification-state mb-0">Loading...</p>
+              <p v-else-if="!notifications.length" class="notification-state mb-0">No notifications yet.</p>
+
+              <ul v-else class="notification-list list-unstyled mb-0">
+                <li v-for="notice in notifications" :key="notice.id">
+                  <button
+                    class="notification-row"
+                    :class="{ 'is-unread': !notice.is_read }"
+                    type="button"
+                    @click="openNotification(notice)"
+                  >
+                    <span class="notification-dot" :class="{ 'is-hidden': notice.is_read }" aria-hidden="true"></span>
+                    <span class="notification-content">
+                      <span class="notification-row-head">
+                        <span class="notification-type-icon" :class="`is-${noticeKind(notice.type)}`" aria-hidden="true">
+                          <svg v-if="noticeKind(notice.type) === 'order'" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 7.5H21L19.5 18H4.5L3 7.5Z" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M9 10.5V6.5A3 3 0 0 1 15 6.5V10.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                          </svg>
+                          <svg v-else-if="noticeKind(notice.type) === 'payment'" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="5.5" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M3 10H21" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M7 14.5H11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                          </svg>
+                          <svg v-else-if="noticeKind(notice.type) === 'return'" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 7H19V17H9" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M12 10L9 7L12 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 12H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                          </svg>
+                          <svg v-else viewBox="0 0 24 24" fill="none">
+                            <path d="M12 3.5L3.5 8V16L12 20.5L20.5 16V8L12 3.5Z" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M12 20.5V12" stroke="currentColor" stroke-width="1.8"/>
+                          </svg>
+                        </span>
+                        <span class="notification-row-title">{{ notice.title }}</span>
+                      </span>
+                      <span class="notification-row-message">{{ notice.message }}</span>
+                      <span class="notification-row-time">{{ formatNotificationTime(notice.created_at) }}</span>
+                    </span>
+                  </button>
+                </li>
+              </ul>
+
+              <div class="notification-footer">
+                <RouterLink class="notification-view-all" :to="{ name: 'notifications' }" @click="showNotifications = false">
+                  View all notifications
+                </RouterLink>
+              </div>
+            </div>
+          </transition>
+        </li>
+
+        <li class="nav-item">
+          <RouterLink class="nav-link icon-link plain-icon d-inline-flex align-items-center justify-content-center" :to="{ name: 'wishlist' }" aria-label="Wishlist" title="Wishlist">
+            <svg class="nav-ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 20C12 20 4 14.5 4 9.5C4 7 6 5 8.5 5C10.1 5 11.4 5.8 12 7C12.6 5.8 13.9 5 15.5 5C18 5 20 7 20 9.5C20 14.5 12 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+            </svg>
+            <span class="visually-hidden">Wishlist</span>
+          </RouterLink>
+        </li>
+
+        <li class="nav-item">
+          <RouterLink class="nav-link icon-link plain-icon cart-link d-inline-flex align-items-center justify-content-center" :to="{ name: 'cart' }" aria-label="Cart" title="Cart">
+            <svg class="nav-ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 4H6L7.5 14H18.5L20 7H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+              <circle cx="10" cy="19" r="1.6" fill="currentColor"></circle>
+              <circle cx="17" cy="19" r="1.6" fill="currentColor"></circle>
+            </svg>
+            <span class="visually-hidden">Cart</span>
+            <span v-if="cartItemCount > 0" class="cart-count-badge">{{ cartCountText }}</span>
+          </RouterLink>
+        </li>
+
+        <template v-if="!isUserLoggedIn">
+          <li class="nav-item">
+            <RouterLink class="account-inline" :to="{ name: 'userLogin' }" aria-label="Login">
+              <svg class="nav-ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"></circle>
+                <path d="M4 20C5.5 16.5 8.5 15 12 15C15.5 15 18.5 16.5 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+              </svg>
+              <span class="account-name">Login</span>
+            </RouterLink>
+          </li>
+        </template>
+        <template v-else>
+          <li class="nav-item dropdown">
+            <button
+              class="btn account-inline dropdown-toggle account-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              aria-label="Account menu"
+            >
+              <svg class="nav-ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"></circle>
+                <path d="M4 20C5.5 16.5 8.5 15 12 15C15.5 15 18.5 16.5 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+              </svg>
+              <span class="account-name">{{ displayName }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end account-menu shadow-sm">
+              <li class="account-head px-3 py-2">
+                <div class="small fw-semibold text-truncate">{{ displayName }}</div>
+                <div class="xsmall text-muted text-truncate">{{ userEmail }}</div>
+              </li>
+              <li><hr class="dropdown-divider my-1"></li>
+              <li><RouterLink class="dropdown-item" :to="{ name: 'account' }">Account</RouterLink></li>
+              <li><RouterLink class="dropdown-item" :to="{ name: 'orders' }">My Orders</RouterLink></li>
+              <li><RouterLink class="dropdown-item" :to="{ name: 'wishlist' }">Wishlist</RouterLink></li>
+              <li><RouterLink class="dropdown-item" :to="{ name: 'trackOrder' }">Track Order</RouterLink></li>
+              <li><hr class="dropdown-divider my-1"></li>
+              <li><button class="dropdown-item text-danger" @click="logoutUser">Logout</button></li>
+            </ul>
+          </li>
+        </template>
+      </ul>
+
+      <button class="navbar-toggler ms-auto nav-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-mobile">
         <span class="navbar-toggler-icon"></span>
       </button>
+    </div>
 
-      <div id="nav" class="collapse navbar-collapse">
-        <form class="d-flex ms-auto me-3" @submit.prevent="goSearch">
-          <input class="form-control form-control-sm me-2" v-model="q" placeholder="Search…" style="width: 220px" />
-          <button class="btn btn-outline-dark btn-sm" type="submit">Search</button>
+    <div id="nav-mobile" class="collapse nav-mobile d-lg-none">
+      <div class="container py-2">
+        <form class="search-wrap d-flex w-100 mb-3" @submit.prevent="goSearch">
+          <input class="form-control form-control-sm search-input-mobile" v-model="q" placeholder="Search dresses, shirts, accessories..." />
+          <button class="btn btn-sm btn-outline-dark search-btn icon-only d-inline-flex align-items-center justify-content-center" type="submit" aria-label="Search" title="Search">
+            <svg class="nav-ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+              <path d="M20 20L16.6 16.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+            <span class="visually-hidden">Search</span>
+          </button>
         </form>
-        <ul class="navbar-nav ms-auto gap-2 align-items-lg-center">
-          <li class="nav-item">
-            <RouterLink class="nav-link" :to="{ name: 'products', params: { gender: 'women' } }">Women</RouterLink>
+
+        <ul class="navbar-nav gap-1">
+          <li class="nav-item" v-for="gender in genders" :key="`mobile-${gender}`">
+            <div class="mobile-gender-block">
+              <RouterLink class="nav-link fw-semibold text-capitalize" :to="{ name: 'products', params: { gender } }">{{ gender }}</RouterLink>
+              <div class="mobile-type-list" v-if="typesFor(gender).length">
+                <RouterLink
+                  v-for="type in typesFor(gender)"
+                  :key="`mobile-${gender}-${type.slug}`"
+                  class="mobile-type-link"
+                  :to="{ name: 'products', params: { gender }, query: { category: type.slug } }"
+                >
+                  {{ type.name }}
+                </RouterLink>
+              </div>
+            </div>
           </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" :to="{ name: 'products', params: { gender: 'men' } }">Men</RouterLink>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#ai">AI Features</a>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" :to="{ name: 'orders' }">Orders</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="btn btn-as btn-sm px-3" :to="{ name: 'cart' }">Cart</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" :to="{ name: 'stylist' }">Stylist</RouterLink>
-          </li>
+
+          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'search', query: { q: 'new arrivals' } }">New Arrivals</RouterLink></li>
+          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'search', query: { q: 'sale' } }">Sale</RouterLink></li>
+          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'stylist' }">Stylist</RouterLink></li>
+          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'trackOrder' }">Track Order</RouterLink></li>
+          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'notifications' }">Notifications</RouterLink></li>
+          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'wishlist' }">Wishlist</RouterLink></li>
+          <li class="nav-item" v-if="isUserLoggedIn"><RouterLink class="nav-link" :to="{ name: 'account' }">Account</RouterLink></li>
+          <li class="nav-item" v-if="isUserLoggedIn"><RouterLink class="nav-link" :to="{ name: 'orders' }">My Orders</RouterLink></li>
+          <li class="nav-item" v-if="!isUserLoggedIn"><RouterLink class="nav-link" :to="{ name: 'userLogin' }">Login</RouterLink></li>
+          <li class="nav-item" v-else><button class="btn btn-link nav-link text-danger px-0" @click="logoutUser">Logout</button></li>
         </ul>
       </div>
     </div>
@@ -38,14 +261,798 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { http } from '@/api/http'
+import { fetchNotifications, markAllNotificationsRead, markNotificationRead } from '@/api/notifications'
+import { subscribeNotificationsStream } from '@/api/notificationsStream'
+import { clearUserAuthState, isUserLoggedIn, userProfile } from '@/stores/authStore'
 
 const router = useRouter()
+const route = useRoute()
 const q = ref('')
+const categoryMeta = ref([])
+const cartItemCount = ref(0)
+const notifications = ref([])
+const notificationsLoading = ref(false)
+const notificationsMeta = ref({})
+const showNotifications = ref(false)
+const notificationRoot = ref(null)
+const hoverNav = ref('')
+let closeMenuTimer = null
+let notificationPollTimer = null
+let unsubscribeNotificationStream = null
+const notificationStreamConnected = ref(false)
+const genders = ['women', 'men', 'unisex']
+const desktopNavItems = [
+  { key: 'men', label: "Men's", gender: 'men', to: { name: 'products', params: { gender: 'men' } } },
+  { key: 'women', label: "Women's", gender: 'women', to: { name: 'products', params: { gender: 'women' } } },
+  { key: 'unisex', label: 'Unisex', gender: 'unisex', to: { name: 'products', params: { gender: 'unisex' } } },
+  { key: 'new-arrivals', label: 'New Arrivals', to: { name: 'search', query: { q: 'new arrivals' } } },
+  { key: 'sale', label: 'Sale', to: { name: 'search', query: { q: 'sale' } } },
+  { key: 'stylist', label: 'Stylist', to: { name: 'stylist' } },
+]
+const displayName = computed(() => String(userProfile.value?.fullName || userProfile.value?.email || 'Customer'))
+const userEmail = computed(() => String(userProfile.value?.email || ''))
+const cartCountText = computed(() => (cartItemCount.value > 99 ? '99+' : String(cartItemCount.value)))
+const unreadCount = computed(() => Number(notificationsMeta.value?.unread || 0))
+const unreadCountText = computed(() => (unreadCount.value > 99 ? '99+' : String(unreadCount.value)))
+const activeGender = computed(() => {
+  if (route.name !== 'products') return ''
+  return String(route.params?.gender || '').toLowerCase()
+})
+
+function typesFor(gender) {
+  const seen = new Set()
+  return categoryMeta.value.filter((item) => {
+    const slug = String(item?.slug || '').trim().toLowerCase()
+    if (!slug || seen.has(slug)) return false
+    const hasCount = Number(item?.counts?.[gender] || 0) > 0
+    if (!hasCount) return false
+    seen.add(slug)
+    return true
+  })
+}
+
+function chunkArray(items, size) {
+  const out = []
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size))
+  return out
+}
+
+function dropdownColumnsFor(item) {
+  if (item.gender) {
+    const categoryLinks = typesFor(item.gender).map((type) => ({
+      label: type.name,
+      to: { name: 'products', params: { gender: item.gender }, query: { category: type.slug } },
+    }))
+    const allLink = { label: `Shop All ${item.label}`, to: { name: 'products', params: { gender: item.gender } } }
+    const links = [allLink, ...categoryLinks]
+    return chunkArray(links, 6)
+  }
+
+  if (item.key === 'new-arrivals') {
+    return [[
+      { label: 'Just In', to: { name: 'search', query: { q: 'new arrivals' } } },
+      { label: 'Trending Now', to: { name: 'search', query: { q: 'trending' } } },
+      { label: 'Best Sellers', to: { name: 'search', query: { q: 'best seller' } } },
+      { label: 'New Dresses', to: { name: 'search', query: { q: 'new dresses' } } },
+    ]]
+  }
+
+  if (item.key === 'sale') {
+    return [[
+      { label: 'All Sale Items', to: { name: 'search', query: { q: 'sale' } } },
+      { label: 'Men Sale', to: { name: 'search', query: { q: 'men sale' } } },
+      { label: 'Women Sale', to: { name: 'search', query: { q: 'women sale' } } },
+      { label: 'Unisex Sale', to: { name: 'search', query: { q: 'unisex sale' } } },
+    ]]
+  }
+
+  if (item.key === 'stylist') {
+    return [[
+      { label: 'AI Stylist', to: { name: 'stylist' } },
+      { label: 'Find Your Style', to: { name: 'stylist' } },
+      { label: 'Occasion Looks', to: { name: 'search', query: { q: 'occasion outfits' } } },
+      { label: 'Capsule Wardrobe', to: { name: 'search', query: { q: 'capsule wardrobe' } } },
+    ]]
+  }
+
+  return [[]]
+}
+
+function clearCloseTimer() {
+  if (!closeMenuTimer) return
+  clearTimeout(closeMenuTimer)
+  closeMenuTimer = null
+}
+
+function openNavMenu(key) {
+  clearCloseTimer()
+  hoverNav.value = key
+}
+
+function scheduleCloseNavMenu() {
+  clearCloseTimer()
+  closeMenuTimer = setTimeout(() => {
+    hoverNav.value = ''
+    closeMenuTimer = null
+  }, 140)
+}
+
+async function loadCatalogMeta() {
+  try {
+    const res = await http.get('/products/meta')
+    categoryMeta.value = Array.isArray(res.data?.data?.categories) ? res.data.data.categories : []
+  } catch {
+    categoryMeta.value = []
+  }
+}
+
+async function loadCartSummary() {
+  try {
+    const res = await http.get('/cart')
+    const totalItems = Number(res.data?.data?.totals?.totalItems || 0)
+    cartItemCount.value = Number.isFinite(totalItems) ? totalItems : 0
+  } catch {
+    cartItemCount.value = 0
+  }
+}
+
+function formatNotificationTime(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleString([], {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
+function notificationRoute(notice) {
+  const meta = notice?.meta && typeof notice.meta === 'object' ? notice.meta : {}
+  const orderId = meta.orderId || meta.order_id || null
+  if (orderId && isUserLoggedIn.value) {
+    return { name: 'orderDetail', params: { id: orderId } }
+  }
+  return { name: 'trackOrder' }
+}
+
+function noticeKind(type) {
+  const text = String(type || '').toLowerCase()
+  if (text.includes('payment')) return 'payment'
+  if (text.includes('return')) return 'return'
+  if (text.includes('order')) return 'order'
+  return 'general'
+}
+
+async function loadNotifications({ silent = false } = {}) {
+  if (!silent) notificationsLoading.value = true
+  try {
+    const data = await fetchNotifications({ page: 1, limit: 12 })
+    notifications.value = Array.isArray(data.items) ? data.items : []
+    notificationsMeta.value = data.meta || {}
+  } catch {
+    if (!silent) notifications.value = []
+  } finally {
+    if (!silent) notificationsLoading.value = false
+  }
+}
+
+function handleNotificationStreamEvent() {
+  loadNotifications({ silent: true })
+}
+
+function startNotificationFallbackPoll() {
+  if (notificationPollTimer) return
+  notificationPollTimer = setInterval(() => {
+    if (!notificationStreamConnected.value) {
+      loadNotifications({ silent: true })
+    }
+  }, 30000)
+}
+
+function stopNotificationFallbackPoll() {
+  if (!notificationPollTimer) return
+  clearInterval(notificationPollTimer)
+  notificationPollTimer = null
+}
+
+function toggleNotifications() {
+  showNotifications.value = !showNotifications.value
+  if (showNotifications.value) loadNotifications()
+}
+
+async function handleMarkAllNotificationsRead() {
+  try {
+    await markAllNotificationsRead()
+    notifications.value = notifications.value.map((item) => ({
+      ...item,
+      is_read: true,
+      read_at: item.read_at || new Date().toISOString(),
+    }))
+    notificationsMeta.value = { ...notificationsMeta.value, unread: 0 }
+  } catch {}
+}
+
+async function openNotification(notice) {
+  if (!notice) return
+  if (!notice.is_read) {
+    try {
+      await markNotificationRead(notice.id)
+      notifications.value = notifications.value.map((item) =>
+        item.id === notice.id ? { ...item, is_read: true, read_at: item.read_at || new Date().toISOString() } : item
+      )
+      notificationsMeta.value = { ...notificationsMeta.value, unread: Math.max(unreadCount.value - 1, 0) }
+    } catch {}
+  }
+
+  showNotifications.value = false
+  router.push(notificationRoute(notice)).catch(() => {})
+}
+
+function onWindowClick(event) {
+  if (!showNotifications.value) return
+  const root = notificationRoot.value
+  if (!root) return
+  if (root.contains(event.target)) return
+  showNotifications.value = false
+}
 
 function goSearch() {
   if (!q.value.trim()) return
   router.push({ name: 'search', query: { q: q.value.trim() } })
 }
+
+function logoutUser() {
+  clearUserAuthState()
+  cartItemCount.value = 0
+  notifications.value = []
+  notificationsMeta.value = {}
+  showNotifications.value = false
+  router.push({ name: 'home' })
+}
+
+watch(
+  () => route.fullPath,
+  () => {
+    loadCartSummary()
+    loadNotifications({ silent: true })
+    hoverNav.value = ''
+    showNotifications.value = false
+  }
+)
+
+onMounted(() => {
+  loadCatalogMeta()
+  loadCartSummary()
+  loadNotifications()
+  window.addEventListener('click', onWindowClick)
+  unsubscribeNotificationStream = subscribeNotificationsStream({
+    onMessage: handleNotificationStreamEvent,
+    onStatus: (connected) => {
+      notificationStreamConnected.value = Boolean(connected)
+    },
+  })
+  startNotificationFallbackPoll()
+})
+
+onUnmounted(() => {
+  clearCloseTimer()
+  window.removeEventListener('click', onWindowClick)
+  stopNotificationFallbackPoll()
+  if (typeof unsubscribeNotificationStream === 'function') unsubscribeNotificationStream()
+})
 </script>
+
+<style scoped>
+.app-navbar {
+  border-bottom: 1px solid #ece8df;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(17, 17, 17, 0.03);
+}
+
+.nav-shell {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-left {
+  margin-right: 1rem;
+  color: var(--as-black);
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.brand-title {
+  font-size: 1.12rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.center-nav {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  position: relative;
+}
+
+.center-item {
+  position: relative;
+}
+
+.center-link {
+  color: #262626;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0.35rem 0.72rem;
+  border-bottom: 2px solid transparent;
+  transition: color 0.16s ease;
+}
+
+.center-link:hover {
+  color: #111;
+}
+
+.center-link.is-active-main {
+  color: #111;
+  border-bottom-color: var(--as-gold);
+}
+
+.nav-mega-dropdown {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #ece8df;
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(17, 17, 17, 0.08);
+  min-width: 480px;
+  padding: 0.9rem 1rem;
+  z-index: 30;
+}
+
+.dropdown-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.dropdown-col {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.dropdown-link {
+  color: #333;
+  text-decoration: none;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  padding: 0.26rem 0.1rem;
+}
+
+.dropdown-link:hover {
+  color: #111;
+}
+
+.nav-dropdown-fade-enter-active,
+.nav-dropdown-fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.nav-dropdown-fade-enter-from,
+.nav-dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(4px);
+}
+
+.action-nav {
+  gap: 0.3rem;
+}
+
+.icon-only {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.icon-link {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+}
+
+.notification-item {
+  position: relative;
+}
+
+.notification-toggle {
+  background: transparent;
+}
+
+.plain-icon {
+  color: #252525;
+  text-decoration: none;
+  transition: color 0.16s ease;
+}
+
+.plain-icon:hover {
+  color: #111;
+}
+
+.nav-ic {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}
+
+.search-wrap {
+  gap: 0.45rem;
+}
+
+.search-inline {
+  display: flex;
+  align-items: center;
+  width: 230px;
+  margin-right: 0.65rem;
+}
+
+.search-inline-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.search-ic {
+  position: absolute;
+  top: 50%;
+  left: 11px;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #767676;
+  pointer-events: none;
+}
+
+.search-input {
+  border-radius: 6px;
+  border: 1px solid #e0dbd2;
+  background: #f7f4ef;
+  padding-left: 36px;
+  padding-right: 10px;
+  height: 48px;
+  font-size: 0.94rem;
+  color: #1f1f1f;
+}
+
+.search-input:focus {
+  border-color: #d1b489;
+  background: #fff;
+  box-shadow: 0 0 0 0.14rem rgba(198, 169, 122, 0.2);
+}
+
+.search-input-mobile {
+  border-radius: 6px;
+}
+
+.search-btn {
+  border: 0;
+  background: transparent;
+  color: #111;
+}
+
+.account-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #252525;
+  text-decoration: none;
+  padding: 0.2rem 0.25rem;
+  border: 0;
+  background: transparent;
+  max-width: 180px;
+}
+
+.account-inline:hover {
+  color: #111;
+}
+
+.account-name {
+  display: inline-block;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  font-size: 0.84rem;
+  color: #333;
+}
+
+.account-toggle,
+.account-toggle:hover {
+  border-radius: 0;
+}
+
+.account-toggle::after {
+  margin-left: 0.18rem;
+  border-top-width: 0.25em;
+  border-right-width: 0.25em;
+  border-left-width: 0.25em;
+}
+
+.account-menu {
+  min-width: 220px;
+  border: 1px solid #ece8df;
+  border-radius: 10px;
+  padding: 0.34rem;
+}
+
+.account-head .xsmall {
+  font-size: 0.72rem;
+}
+
+.cart-link {
+  position: relative;
+}
+
+.cart-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1;
+  background: #111;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+.notification-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1;
+  background: var(--as-gold);
+  color: #111;
+  border: 1px solid #fff;
+}
+
+.notification-menu {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  right: 0;
+  width: min(92vw, 360px);
+  max-height: 430px;
+  overflow: auto;
+  border: 1px solid #ece8df;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 34px rgba(17, 17, 17, 0.12);
+  padding: 0.55rem;
+  z-index: 40;
+}
+
+.notification-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.2rem 0.35rem 0.5rem;
+  border-bottom: 1px solid #f0ece4;
+  margin-bottom: 0.25rem;
+}
+
+.notification-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #202020;
+}
+
+.notification-mark-all {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #8a6b3f;
+  text-decoration: none;
+  padding: 0;
+}
+
+.notification-mark-all:hover {
+  color: #6f5432;
+}
+
+.notification-state {
+  padding: 0.65rem 0.35rem;
+  color: #6f6f6f;
+  font-size: 0.84rem;
+}
+
+.notification-list {
+  display: grid;
+}
+
+.notification-footer {
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.35rem 0.2rem;
+  border-top: 1px solid #f0ece4;
+}
+
+.notification-view-all {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #8a6b3f;
+  text-decoration: none;
+}
+
+.notification-view-all:hover {
+  color: #6f5432;
+}
+
+.notification-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: flex-start;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  border-radius: 10px;
+  padding: 0.55rem 0.45rem;
+}
+
+.notification-row:hover {
+  background: #f8f5ef;
+}
+
+.notification-row.is-unread {
+  background: #f9f5ec;
+}
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--as-gold);
+  margin-top: 0.38rem;
+}
+
+.notification-dot.is-hidden {
+  visibility: hidden;
+}
+
+.notification-content {
+  display: grid;
+  gap: 0.08rem;
+}
+
+.notification-row-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.notification-type-icon {
+  width: 1rem;
+  height: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  flex: 0 0 1rem;
+}
+
+.notification-type-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.notification-type-icon.is-order {
+  color: #6b7280;
+}
+
+.notification-type-icon.is-payment {
+  color: #166534;
+}
+
+.notification-type-icon.is-return {
+  color: #9a3412;
+}
+
+.notification-type-icon.is-general {
+  color: #6b7280;
+}
+
+.notification-row-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.notification-row-message {
+  font-size: 0.8rem;
+  color: #3d3d3d;
+  line-height: 1.35;
+}
+
+.notification-row-time {
+  font-size: 0.72rem;
+  color: #7e7e7e;
+}
+
+.notify-pop-enter-active,
+.notify-pop-leave-active {
+  transition: opacity 0.16s ease, transform 0.2s ease;
+}
+
+.notify-pop-enter-from,
+.notify-pop-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.nav-mobile {
+  border-top: 1px solid #ece8df;
+  background: #fff;
+}
+
+.nav-toggler {
+  border-radius: 6px;
+  border-color: #ddd;
+}
+
+.mobile-gender-block {
+  border: 1px solid #e2e8f2;
+  border-radius: 10px;
+  padding: 0.25rem 0.65rem 0.5rem;
+  background: #fff;
+}
+
+.mobile-type-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding-left: 0.15rem;
+}
+
+.mobile-type-link {
+  text-decoration: none;
+  color: #4b5563;
+  font-size: 0.86rem;
+}
+
+.mobile-type-link:hover {
+  color: #111;
+}
+
+@media (max-width: 991.98px) {
+  .brand-title {
+    font-size: 0.98rem;
+    letter-spacing: 0.14em;
+  }
+}
+</style>

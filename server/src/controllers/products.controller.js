@@ -1,6 +1,6 @@
 const productService = require("../services/product.service");
 
-exports.list = async (req, res, next) => {
+const list = async (req, res, next) => {
   try {
     const data = await productService.list(req.query);
     res.json({ success: true, data: data.items, meta: data.meta });
@@ -9,7 +9,16 @@ exports.list = async (req, res, next) => {
   }
 };
 
-exports.detail = async (req, res, next) => {
+const meta = async (req, res, next) => {
+  try {
+    const data = await productService.meta();
+    res.json({ success: true, data });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const detail = async (req, res, next) => {
   try {
     const data = await productService.detail(req.params.id);
     if (!data) return res.status(404).json({ success: false, error: "Product not found" });
@@ -19,11 +28,18 @@ exports.detail = async (req, res, next) => {
   }
 };
 
-exports.similar = async (req, res, next) => {
+const similar = async (req, res, next) => {
   try {
     const data = await productService.similar(req.params.id, req.query);
     res.json({ success: true, data });
   } catch (err) {
     next(err);
   }
+};
+
+module.exports = {
+  list,
+  meta,
+  detail,
+  similar,
 };

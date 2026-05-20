@@ -174,12 +174,39 @@ function colorSet() {
   return pickMany(pool, 2, 3);
 }
 
+const FASHION_IMAGE_POOL = [
+  "https://images.unsplash.com/photo-1483985988355-763728e1935b",
+  "https://images.unsplash.com/photo-1490481651871-ab68de25d43d",
+  "https://images.unsplash.com/photo-1516257984-b1b4d707412e",
+  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7",
+  "https://images.unsplash.com/photo-1445205170230-053b83016050",
+  "https://images.unsplash.com/photo-1464863979621-258859e62245",
+  "https://images.unsplash.com/photo-1529139574466-a303027c1d8b",
+  "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc",
+  "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c",
+  "https://images.unsplash.com/photo-1475180098004-ca77a66827be",
+  "https://images.unsplash.com/photo-1434389677669-e08b4cac3105",
+  "https://images.unsplash.com/photo-1516762689617-e1cffcef479d",
+  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
+  "https://images.unsplash.com/photo-1475180098004-ca77a66827be",
+  "https://images.unsplash.com/photo-1469334031218-e382a71b716b",
+  "https://images.unsplash.com/photo-1467043198406-dc953a3defa0",
+];
+
+function hashString(input) {
+  let h = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    h = (h * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return h;
+}
+
 function imageUrlsForSlug(slug, count) {
-  // Free placeholders. Replace later with real assets.
-  // Picsum is convenient; seeds keep images stable per product.
   const urls = [];
-  for (let i = 1; i <= count; i++) {
-    urls.push(`https://picsum.photos/seed/${slug}-${i}/900/1200`);
+  const base = hashString(String(slug || ""));
+  for (let i = 0; i < count; i += 1) {
+    const idx = (base + i) % FASHION_IMAGE_POOL.length;
+    urls.push(`${FASHION_IMAGE_POOL[idx]}?auto=format&fit=crop&w=900&q=80`);
   }
   return urls;
 }
@@ -189,10 +216,10 @@ async function upsertCategories(client) {
   const categoriesToEnsure = [];
 
   for (const [name] of CATEGORY_PLAN.women) {
-    categoriesToEnsure.push({ name, slug: `women-${slugify(name)}`, gender: "women" });
+    categoriesToEnsure.push({ name, slug: slugify(name), gender: "unisex" });
   }
   for (const [name] of CATEGORY_PLAN.men) {
-    categoriesToEnsure.push({ name, slug: `men-${slugify(name)}`, gender: "men" });
+    categoriesToEnsure.push({ name, slug: slugify(name), gender: "unisex" });
   }
 
   // Insert missing categories
@@ -307,7 +334,7 @@ async function main() {
 
   for (const gender of ["women", "men"]) {
     for (const [catName, count] of CATEGORY_PLAN[gender]) {
-      const slug = `${gender}-${slugify(catName)}`;
+      const slug = slugify(catName);
       const category_id = categoryMap.get(slug);
       if (!category_id) throw new Error(`Missing category id for slug: ${slug}`);
 

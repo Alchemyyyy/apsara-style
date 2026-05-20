@@ -1,6 +1,6 @@
-const db = require("../db");
 const { cosine } = require("../utils/similarity");
 const { embedQueryPython } = require("./embedQuery.service");
+const stylistRepo = require("../repositories/stylist.repository");
 
 const RULES = {
   women: {
@@ -39,52 +39,11 @@ function tagMatchBoost(product, { occasion, style }) {
   return boost;
 }
 
-async function loadCandidates({ gender, budgetMax }) {
-  const params = [];
-  const filters = ["p.is_active = true"];
-  let i = 1;
-
-  if (gender) {
-    params.push(gender);
-    filters.push(`p.gender = $${i++}`);
-  }
-
-  if (budgetMax && Number.isFinite(budgetMax)) {
-    params.push(budgetMax);
-    filters.push(`(COALESCE(p.discount_price, p.base_price) <= $${i++})`);
-  }
-
-  const where = `WHERE ${filters.join(" AND ")}`;
-
-  const res = await db.query(
-    `
-    SELECT
-      p.id, p.title, p.gender, p.base_price, p.discount_price, p.tags,
-      c.slug AS category_slug,
-      pe.vector AS vector,
-      (
-        SELECT url
-        FROM product_images pi
-        WHERE pi.product_id = p.id
-        ORDER BY pi.sort_order ASC
-        LIMIT 1
-      ) AS hero_image
-    FROM products p
-    LEFT JOIN categories c ON c.id = p.category_id
-    JOIN product_embeddings pe ON pe.product_id = p.id
-    ${where}
-    `,
-    params
-  );
-
-  return res.rows;
-}
-
-exports.buildOutfit = async ({ sessionId, prompt, gender, occasion, style, budgetMax, k }) => {
+const buildOutfit = async ({ sessionId, prompt, gender, occasion, style, budgetMax, k }) => {
   const K = Math.max(1, Math.min(Number(k || 3), 5)); // 1..5 variations
   const qVec = await embedQueryPython(prompt);
 
-  const candidates = await loadCandidates({ gender, budgetMax });
+  const candidates = await stylistRepo.loadCandidates({ gender, budgetMax });
 
   // Score candidates with semantic similarity + tag boost
   const scoredAll = candidates
@@ -151,13 +110,11 @@ exports.buildOutfit = async ({ sessionId, prompt, gender, occasion, style, budge
   for (let i = 0; i < K; i++) looks.push(buildOneVariation(i));
 
   // Track stylist_request event
-  await db.query(
-    `
-    INSERT INTO events (session_id, type, query, meta)
-    VALUES ($1, 'stylist_request', $2, $3)
-    `,
-    [sessionId, prompt, { gender: g, occasion, style, budgetMax, k: K }]
-  );
+  await stylistRepo.createStylistRequestEvent({
+    sessionId,
+    prompt,
+    meta: { gender: g, occasion, style, budgetMax, k: K },
+  });
 
   return {
     prompt,
@@ -169,3 +126,6 @@ exports.buildOutfit = async ({ sessionId, prompt, gender, occasion, style, budge
   };
 };
 
+module.exports = {
+  buildOutfit,
+};

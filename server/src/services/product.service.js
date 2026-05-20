@@ -1,11 +1,26 @@
-const db = require("../db");
+const productRepo = require("../repositories/product.repository");
+const { cosine } = require("../utils/similarity");
+
+const VALID_GENDERS = ["men", "women", "unisex"];
 
 function toInt(v, def) {
   const n = Number(v);
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : def;
 }
 
-exports.list = async (q) => {
+function normalizeGender(value) {
+  const safe = String(value || "").trim().toLowerCase();
+  if (!safe) return "";
+  if (!VALID_GENDERS.includes(safe)) throw new Error("gender must be one of men|women|unisex");
+  return safe;
+}
+
+function isTruthyFlag(value) {
+  const v = String(value || "").trim().toLowerCase();
+  return ["1", "true", "yes", "on"].includes(v);
+}
+
+const list = async (q) => {
   const page = toInt(q.page, 1);
   const limit = Math.min(toInt(q.limit, 12), 48);
   const offset = (page - 1) * limit;
@@ -14,17 +29,16 @@ exports.list = async (q) => {
   const params = [];
   let i = 1;
 
-  // Only active
   filters.push(`p.is_active = true`);
+  filters.push(`(c.id IS NULL OR c.is_active = true)`);
 
   if (q.gender) {
-    params.push(q.gender);
+    params.push(normalizeGender(q.gender));
     filters.push(`p.gender = $${i++}`);
   }
 
   if (q.category) {
-    // allow slug filter (women-dresses, men-shirts)
-    params.push(q.category);
+    params.push(String(q.category).trim().toLowerCase());
     filters.push(`c.slug = $${i++}`);
   }
 
@@ -38,146 +52,124 @@ exports.list = async (q) => {
     filters.push(`p.base_price <= $${i++}`);
   }
 
+  if (isTruthyFlag(q.discount)) {
+    filters.push(`p.discount_price IS NOT NULL`);
+    filters.push(`p.discount_price > 0`);
+    filters.push(`p.discount_price < p.base_price`);
+  }
+
   const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
 
   const sortMap = {
+    recommend:
+      `
+      CASE
+        WHEN p.discount_price IS NOT NULL
+          AND p.discount_price > 0
+          AND p.discount_price < p.base_price THEN 0
+        ELSE 1
+      END ASC,
+      p.created_at DESC
+      `,
     newest: "p.created_at DESC",
-    price_asc: "p.base_price ASC",
-    price_desc: "p.base_price DESC",
+    price_asc: "COALESCE(p.discount_price, p.base_price) ASC, p.created_at DESC",
+    price_desc: "COALESCE(p.discount_price, p.base_price) DESC, p.created_at DESC",
+    discount_desc:
+      `
+      CASE
+        WHEN p.discount_price IS NOT NULL
+          AND p.discount_price > 0
+          AND p.discount_price < p.base_price
+        THEN (p.base_price - p.discount_price) / NULLIF(p.base_price, 0)
+        ELSE 0
+      END DESC,
+      p.created_at DESC
+      `,
+    discount_asc:
+      `
+      CASE
+        WHEN p.discount_price IS NOT NULL
+          AND p.discount_price > 0
+          AND p.discount_price < p.base_price
+        THEN (p.base_price - p.discount_price) / NULLIF(p.base_price, 0)
+        ELSE 0
+      END ASC,
+      p.created_at DESC
+      `,
   };
-  const orderBy = sortMap[q.sort] || sortMap.newest;
+  const orderBy = sortMap[q.sort] || sortMap.recommend;
 
-  // total count
-  const countRes = await db.query(
-    `
-    SELECT COUNT(*)::int AS total
-    FROM products p
-    LEFT JOIN categories c ON c.id = p.category_id
-    ${where}
-    `,
-    params
-  );
-  const total = countRes.rows[0]?.total ?? 0;
-
-  // items
-  params.push(limit, offset);
-  const itemsRes = await db.query(
-    `
-    SELECT
-      p.id, p.title, p.slug, p.gender, p.base_price, p.discount_price,
-      p.tags, p.created_at,
-      c.slug AS category_slug,
-      (
-        SELECT url
-        FROM product_images pi
-        WHERE pi.product_id = p.id
-        ORDER BY pi.sort_order ASC
-        LIMIT 1
-      ) AS hero_image
-    FROM products p
-    LEFT JOIN categories c ON c.id = p.category_id
-    ${where}
-    ORDER BY ${orderBy}
-    LIMIT $${i++} OFFSET $${i++}
-    `,
-    params
-  );
+  const total = await productRepo.countForList({ where, params });
+  const items = await productRepo.listForCatalog({
+    where,
+    orderBy,
+    params,
+    limit,
+    offset,
+  });
 
   return {
-    items: itemsRes.rows,
+    items,
     meta: {
       page,
       limit,
       total,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.max(1, Math.ceil(total / limit)),
     },
   };
 };
 
-exports.detail = async (id) => {
-  const productRes = await db.query(
-    `
-    SELECT
-      p.*,
-      c.name AS category_name,
-      c.slug AS category_slug
-    FROM products p
-    LEFT JOIN categories c ON c.id = p.category_id
-    WHERE p.id = $1 AND p.is_active = true
-    `,
-    [id]
-  );
-
-  const product = productRes.rows[0];
+const detail = async (id) => {
+  const product = await productRepo.findProductDetail(id);
   if (!product) return null;
 
-  const imagesRes = await db.query(
-    `
-    SELECT id, url, alt_text, sort_order
-    FROM product_images
-    WHERE product_id = $1
-    ORDER BY sort_order ASC
-    `,
-    [id]
-  );
-
-  const variantsRes = await db.query(
-    `
-    SELECT id, size, color, sku, stock
-    FROM product_variants
-    WHERE product_id = $1
-    ORDER BY color ASC, size ASC
-    `,
-    [id]
-  );
+  const images = await productRepo.findProductImages(id);
+  const variants = await productRepo.findProductVariants(id);
 
   return {
     ...product,
-    images: imagesRes.rows,
-    variants: variantsRes.rows,
+    images,
+    variants,
   };
 };
 
-const { cosine } = require("../utils/similarity");
-
-exports.similar = async (productId, q) => {
+const similar = async (productId, q) => {
   const limit = Math.min(Number(q.limit || 8), 24);
-
-  // 1) Get source vector
-  const srcRes = await db.query(
-    `SELECT vector FROM product_embeddings WHERE product_id = $1`,
-    [productId]
-  );
-  const src = srcRes.rows[0];
+  const src = await productRepo.findEmbeddingVector(productId);
   if (!src) return [];
 
-  // 2) Pull candidates (small dataset => rank in Node)
-  const candRes = await db.query(
-    `
-    SELECT
-      p.id, p.title, p.slug, p.gender, p.base_price, p.discount_price, p.tags, p.created_at,
-      c.slug AS category_slug,
-      pe.vector AS vector,
-      (
-        SELECT url FROM product_images pi
-        WHERE pi.product_id = p.id
-        ORDER BY pi.sort_order ASC
-        LIMIT 1
-      ) AS hero_image
-    FROM products p
-    LEFT JOIN categories c ON c.id = p.category_id
-    JOIN product_embeddings pe ON pe.product_id = p.id
-    WHERE p.is_active = true AND p.id <> $1
-    `,
-    [productId]
-  );
-
-  const scored = candRes.rows.map((r) => ({
+  const candidates = await productRepo.listEmbeddingCandidates(productId);
+  const scored = candidates.map((r) => ({
     ...r,
     _score: cosine(src.vector, r.vector || []),
   }));
 
   scored.sort((a, b) => b._score - a._score);
-
   return scored.slice(0, limit).map(({ vector, _score, ...safe }) => safe);
+};
+
+const meta = async () => {
+  const categories = await productRepo.listCatalogMeta();
+  return {
+    genders: VALID_GENDERS,
+    categories: categories.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      sort_order: c.sort_order,
+      counts: {
+        women: Number(c.women_count || 0),
+        men: Number(c.men_count || 0),
+        unisex: Number(c.unisex_count || 0),
+        total: Number(c.total_count || 0),
+      },
+    })),
+  };
+};
+
+module.exports = {
+  list,
+  detail,
+  similar,
+  meta,
 };

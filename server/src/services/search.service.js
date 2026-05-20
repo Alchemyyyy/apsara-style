@@ -1,6 +1,6 @@
-const db = require("../db");
 const { cosine } = require("../utils/similarity");
 const { embedQueryPython } = require("./embedQuery.service");
+const searchRepo = require("../repositories/search.repository");
 
 function toInt(v, def) {
   const n = Number(v);
@@ -34,7 +34,7 @@ function keywordScore(q, title, tags) {
   return score;
 }
 
-exports.search = async (queryParams) => {
+const search = async (queryParams) => {
   const q = (queryParams.q || "").trim();
   if (!q) return { items: [], meta: { page: 1, limit: 12, total: 0, totalPages: 0 } };
 
@@ -79,28 +79,9 @@ exports.search = async (queryParams) => {
   const where = `WHERE ${filters.join(" AND ")}`;
 
   // Pull everything then rank in Node (fine for 300 products)
-  const res = await db.query(
-    `
-    SELECT
-      p.id, p.title, p.slug, p.gender, p.base_price, p.discount_price, p.tags, p.created_at,
-      c.slug AS category_slug,
-      pe.vector AS vector,
-      (
-        SELECT url
-        FROM product_images pi
-        WHERE pi.product_id = p.id
-        ORDER BY pi.sort_order ASC
-        LIMIT 1
-      ) AS hero_image
-    FROM products p
-    LEFT JOIN categories c ON c.id = p.category_id
-    JOIN product_embeddings pe ON pe.product_id = p.id
-    ${where}
-    `,
-    params
-  );
+  const rows = await searchRepo.listSearchCandidates({ where, params });
 
-  const scored = res.rows.map((row) => {
+  const scored = rows.map((row) => {
     const vec = row.vector || [];
     const sem = cosine(qVec, vec); // ~ dot if normalized
     const key = keywordScore(q, row.title, row.tags);
@@ -123,4 +104,8 @@ exports.search = async (queryParams) => {
     items: paged,
     meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
   };
+};
+
+module.exports = {
+  search,
 };

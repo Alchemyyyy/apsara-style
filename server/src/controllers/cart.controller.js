@@ -1,6 +1,6 @@
 const cartService = require("../services/cart.service");
 
-exports.getCart = async (req, res, next) => {
+const getCart = async (req, res, next) => {
   try {
     const data = await cartService.getOrCreateCart({ sessionId: req.sessionId });
     res.json({ success: true, data });
@@ -9,15 +9,19 @@ exports.getCart = async (req, res, next) => {
   }
 };
 
-exports.addItem = async (req, res, next) => {
+const addItem = async (req, res, next) => {
   try {
     const { variantId, qty } = req.body;
     if (!variantId) return res.status(400).json({ success: false, error: "variantId is required" });
+    const parsedQty = qty == null ? 1 : Number(qty);
+    if (!Number.isInteger(parsedQty) || parsedQty <= 0) {
+      return res.status(400).json({ success: false, error: "qty must be a positive integer" });
+    }
 
     const data = await cartService.addItem({
       sessionId: req.sessionId,
       variantId,
-      qty: Number(qty) || 1,
+      qty: parsedQty,
     });
 
     res.json({ success: true, data });
@@ -26,15 +30,22 @@ exports.addItem = async (req, res, next) => {
   }
 };
 
-exports.updateItem = async (req, res, next) => {
+const updateItem = async (req, res, next) => {
   try {
     const { qty } = req.body;
     const itemId = req.params.itemId;
+    const parsedQty = Number(qty);
+    if (!Number.isInteger(parsedQty)) {
+      return res.status(400).json({ success: false, error: "qty must be an integer" });
+    }
+    if (parsedQty < 0) {
+      return res.status(400).json({ success: false, error: "qty must be >= 0" });
+    }
 
     const data = await cartService.updateItem({
       sessionId: req.sessionId,
       itemId,
-      qty: Number(qty),
+      qty: parsedQty,
     });
 
     res.json({ success: true, data });
@@ -43,7 +54,7 @@ exports.updateItem = async (req, res, next) => {
   }
 };
 
-exports.removeItem = async (req, res, next) => {
+const removeItem = async (req, res, next) => {
   try {
     const itemId = req.params.itemId;
 
@@ -56,4 +67,49 @@ exports.removeItem = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+const refreshReservations = async (req, res, next) => {
+  try {
+    const data = await cartService.refreshReservations({
+      sessionId: req.sessionId,
+    });
+
+    res.json({ success: true, data });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const adjustToAvailable = async (req, res, next) => {
+  try {
+    const data = await cartService.adjustToAvailable({
+      sessionId: req.sessionId,
+    });
+    res.json({ success: true, data });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const claimCart = async (req, res, next) => {
+  try {
+    const data = await cartService.claimSessionCart({
+      sessionId: req.sessionId,
+      userId: req.user?.id,
+    });
+    res.json({ success: true, data });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {
+  getCart,
+  addItem,
+  updateItem,
+  removeItem,
+  refreshReservations,
+  adjustToAvailable,
+  claimCart,
 };

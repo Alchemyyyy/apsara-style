@@ -1,6 +1,6 @@
 const stylistService = require("../services/stylist.service");
 
-exports.buildOutfit = async (req, res, next) => {
+const buildOutfit = async (req, res, next) => {
   try {
     const { prompt, gender, occasion, style, budgetMax, k } = req.body;
 
@@ -20,4 +20,8 @@ exports.buildOutfit = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+module.exports = {
+  buildOutfit,
 };

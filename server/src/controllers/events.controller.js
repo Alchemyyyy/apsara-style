@@ -1,6 +1,6 @@
 const eventsService = require("../services/events.service");
 
-exports.create = async (req, res, next) => {
+const create = async (req, res, next) => {
   try {
     const { type, productId, query, meta } = req.body;
 
@@ -18,4 +18,8 @@ exports.create = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+module.exports = {
+  create,
 };

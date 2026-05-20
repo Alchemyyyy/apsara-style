@@ -1,8 +1,9 @@
 const router = require("express").Router();
-const adminGuard = require("../middleware/adminGuard")
-const adminAnalyticsController = require("../controllers/adminAnalytics.controller")
+const { adminAuth, requireAdminRoles } = require("../middleware/adminAuth");
+const adminAnalyticsController = require("../controllers/adminAnalytics.controller");
 
-router.use(adminGuard);
+router.use(adminAuth);
+router.use(requireAdminRoles("super_admin", "ops_admin", "catalog_admin"));
 
 router.get("/overview", adminAnalyticsController.overview);
 router.get("/top-products", adminAnalyticsController.topProducts);

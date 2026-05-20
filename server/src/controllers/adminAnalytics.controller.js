@@ -1,6 +1,6 @@
 const analyticsService = require("../services/adminAnalytics.service");
 
-exports.overview = async (req, res, next) => {
+const overview = async (req, res, next) => {
   try {
     const days = Number(req.query.days || 7);
     const data = await analyticsService.overview({ days });
@@ -10,7 +10,7 @@ exports.overview = async (req, res, next) => {
   }
 };
 
-exports.topProducts = async (req, res, next) => {
+const topProducts = async (req, res, next) => {
   try {
     const days = Number(req.query.days || 7);
     const limit = Number(req.query.limit || 10);
@@ -21,7 +21,7 @@ exports.topProducts = async (req, res, next) => {
   }
 };
 
-exports.topSearches = async (req, res, next) => {
+const topSearches = async (req, res, next) => {
   try {
     const days = Number(req.query.days || 7);
     const limit = Number(req.query.limit || 10);
@@ -30,4 +30,10 @@ exports.topSearches = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+module.exports = {
+  overview,
+  topProducts,
+  topSearches,
 };

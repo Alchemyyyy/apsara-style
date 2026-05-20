@@ -1,48 +1,11 @@
 const db = require("../db");
+const cartRepo = require("../repositories/cart.repository");
+const RESERVATION_MINUTES = 15;
 
-async function findCartBySession(sessionId) {
-  const res = await db.query(`SELECT * FROM carts WHERE session_id = $1 LIMIT 1`, [sessionId]);
-  return res.rows[0] || null;
-}
-
-async function createCart(sessionId) {
-  const res = await db.query(
-    `INSERT INTO carts (session_id) VALUES ($1) RETURNING *`,
-    [sessionId]
-  );
-  return res.rows[0];
-}
-
-async function getCartItems(cartId) {
-  const res = await db.query(
-    `
-    SELECT
-      ci.id AS cart_item_id,
-      ci.qty,
-      pv.id AS variant_id,
-      pv.size,
-      pv.color,
-      pv.stock,
-      p.id AS product_id,
-      p.title,
-      p.base_price,
-      p.discount_price,
-      (
-        SELECT url
-        FROM product_images pi
-        WHERE pi.product_id = p.id
-        ORDER BY pi.sort_order ASC
-        LIMIT 1
-      ) AS hero_image
-    FROM cart_items ci
-    JOIN product_variants pv ON pv.id = ci.variant_id
-    JOIN products p ON p.id = pv.product_id
-    WHERE ci.cart_id = $1
-    ORDER BY ci.created_at DESC
-    `,
-    [cartId]
-  );
-  return res.rows;
+function appError(message, status = 400) {
+  const err = new Error(message);
+  err.status = status;
+  return err;
 }
 
 function calcTotals(items) {
@@ -57,11 +20,12 @@ function calcTotals(items) {
   };
 }
 
-exports.getOrCreateCart = async ({ sessionId }) => {
-  let cart = await findCartBySession(sessionId);
-  if (!cart) cart = await createCart(sessionId);
+const getOrCreateCart = async ({ sessionId }) => {
+  await cartRepo.cleanupExpiredReservations();
+  let cart = await cartRepo.findCartBySession(sessionId);
+  if (!cart) cart = await cartRepo.createCart(sessionId);
 
-  const items = await getCartItems(cart.id);
+  const items = await cartRepo.findCartItemsWithReservation({ cartId: cart.id, sessionId });
   const totals = calcTotals(items);
 
   return {
@@ -72,71 +36,319 @@ exports.getOrCreateCart = async ({ sessionId }) => {
   };
 };
 
-exports.addItem = async ({ sessionId, variantId, qty }) => {
+const addItem = async ({ sessionId, variantId, qty }) => {
   if (qty <= 0) qty = 1;
 
-  // Ensure cart exists
-  let cart = await findCartBySession(sessionId);
-  if (!cart) cart = await createCart(sessionId);
+  await db.query("BEGIN");
+  try {
+    await cartRepo.cleanupExpiredReservations(db);
 
-  // Check stock
-  const vRes = await db.query(`SELECT stock FROM product_variants WHERE id = $1`, [variantId]);
-  const variant = vRes.rows[0];
-  if (!variant) throw new Error("Variant not found");
-  if (variant.stock <= 0) throw new Error("Out of stock");
+    // Ensure cart exists
+    let cart = await cartRepo.findCartBySession(sessionId, db);
+    if (!cart) cart = await cartRepo.createCart(sessionId, db);
 
-  // Upsert cart item
-  await db.query(
-    `
-    INSERT INTO cart_items (cart_id, product_id, variant_id, qty)
-    VALUES (
-      $1,
-      (SELECT product_id FROM product_variants WHERE id = $2),
-      $2,
-      $3
-    )
-    ON CONFLICT (cart_id, variant_id)
-    DO UPDATE SET qty = cart_items.qty + EXCLUDED.qty
-    `,
-    [cart.id, variantId, qty]
-  );
+    const variant = await cartRepo.lockVariantById(variantId, db);
+    if (!variant) throw appError("Variant not found", 404);
+    if (Number(variant.stock) <= 0) throw appError("Out of stock", 409);
 
-  return exports.getOrCreateCart({ sessionId });
-};
+    const existingQty = await cartRepo.findCartItemQtyByVariant({ cartId: cart.id, variantId }, db);
+    const nextQty = existingQty + Number(qty || 0);
 
-exports.updateItem = async ({ sessionId, itemId, qty }) => {
-  if (!Number.isFinite(qty)) throw new Error("qty is required");
-  if (qty <= 0) {
-    return exports.removeItem({ sessionId, itemId });
+    const reservedOther = await cartRepo.findReservedOtherQty({ variantId, sessionId }, db);
+    const available = Number(variant.stock) - reservedOther;
+    if (nextQty > available) {
+      throw appError(`Not enough stock. Available: ${Math.max(0, available)}`, 409);
+    }
+
+    const cartItemId = await cartRepo.upsertCartItem({ cartId: cart.id, variantId, qty: nextQty }, db);
+
+    await cartRepo.upsertReservation(
+      {
+        sessionId,
+        variantId,
+        cartItemId: cartItemId || null,
+        qty: nextQty,
+        reservationMinutes: RESERVATION_MINUTES,
+      },
+      db
+    );
+
+    await db.query("COMMIT");
+  } catch (err) {
+    await db.query("ROLLBACK");
+    throw err;
   }
 
-  // Make sure item belongs to this cart (by session)
-  const cart = await findCartBySession(sessionId);
-  if (!cart) return exports.getOrCreateCart({ sessionId });
-
-  await db.query(
-    `
-    UPDATE cart_items
-    SET qty = $1
-    WHERE id = $2 AND cart_id = $3
-    `,
-    [qty, itemId, cart.id]
-  );
-
-  return exports.getOrCreateCart({ sessionId });
+  return getOrCreateCart({ sessionId });
 };
 
-exports.removeItem = async ({ sessionId, itemId }) => {
-  const cart = await findCartBySession(sessionId);
-  if (!cart) return exports.getOrCreateCart({ sessionId });
+const updateItem = async ({ sessionId, itemId, qty }) => {
+  if (!Number.isFinite(qty)) throw appError("qty is required", 400);
+  if (qty <= 0) {
+    return removeItem({ sessionId, itemId });
+  }
 
-  await db.query(
-    `
-    DELETE FROM cart_items
-    WHERE id = $1 AND cart_id = $2
-    `,
-    [itemId, cart.id]
-  );
+  await db.query("BEGIN");
+  try {
+    await cartRepo.cleanupExpiredReservations(db);
 
-  return exports.getOrCreateCart({ sessionId });
+    // Make sure item belongs to this cart (by session)
+    const cart = await cartRepo.findCartBySession(sessionId, db);
+    if (!cart) {
+      await db.query("COMMIT");
+      return getOrCreateCart({ sessionId });
+    }
+
+    const item = await cartRepo.findCartItemById({ itemId, cartId: cart.id }, db);
+    if (!item) {
+      await db.query("COMMIT");
+      return getOrCreateCart({ sessionId });
+    }
+
+    const variant = await cartRepo.lockVariantById(item.variant_id, db);
+    if (!variant) throw appError("Variant not found", 404);
+
+    const reservedOther = await cartRepo.findReservedOtherQty({ variantId: item.variant_id, sessionId }, db);
+    const available = Number(variant.stock) - reservedOther;
+    if (Number(qty) > available) {
+      throw appError(`Not enough stock. Available: ${Math.max(0, available)}`, 409);
+    }
+
+    await cartRepo.updateCartItemQty({ cartId: cart.id, itemId, qty }, db);
+
+    await cartRepo.upsertReservation(
+      {
+        sessionId,
+        variantId: item.variant_id,
+        cartItemId: itemId,
+        qty,
+        reservationMinutes: RESERVATION_MINUTES,
+      },
+      db
+    );
+
+    await db.query("COMMIT");
+  } catch (err) {
+    await db.query("ROLLBACK");
+    throw err;
+  }
+
+  return getOrCreateCart({ sessionId });
+};
+
+const removeItem = async ({ sessionId, itemId }) => {
+  await db.query("BEGIN");
+  try {
+    await cartRepo.cleanupExpiredReservations(db);
+
+    const cart = await cartRepo.findCartBySession(sessionId, db);
+    if (!cart) {
+      await db.query("COMMIT");
+      return getOrCreateCart({ sessionId });
+    }
+
+    const variantId = await cartRepo.findCartItemVariantId({ itemId, cartId: cart.id }, db);
+    await cartRepo.deleteCartItem({ itemId, cartId: cart.id }, db);
+
+    if (variantId) {
+      await cartRepo.deleteReservationByVariant({ sessionId, variantId }, db);
+    }
+
+    await db.query("COMMIT");
+  } catch (err) {
+    await db.query("ROLLBACK");
+    throw err;
+  }
+
+  return getOrCreateCart({ sessionId });
+};
+
+const refreshReservations = async ({ sessionId }) => {
+  const failedItems = [];
+
+  await db.query("BEGIN");
+  try {
+    await cartRepo.cleanupExpiredReservations(db);
+
+    const cart = await cartRepo.findCartBySession(sessionId, db);
+    if (!cart) {
+      await db.query("COMMIT");
+      const fresh = await getOrCreateCart({ sessionId });
+      return { cart: fresh, failedItems };
+    }
+
+    const items = await cartRepo.listSimpleCartItems(cart.id, db);
+
+    for (const item of items) {
+      const variant = await cartRepo.lockVariantById(item.variant_id, db);
+      if (!variant) continue;
+
+      const reservedOther = await cartRepo.findReservedOtherQty({ variantId: item.variant_id, sessionId }, db);
+      const available = Math.max(0, Number(variant.stock) - reservedOther);
+
+      if (Number(item.qty) <= available) {
+        await cartRepo.upsertReservation(
+          {
+            sessionId,
+            variantId: item.variant_id,
+            cartItemId: item.cart_item_id,
+            qty: item.qty,
+            reservationMinutes: RESERVATION_MINUTES,
+          },
+          db
+        );
+      } else {
+        await cartRepo.deleteReservationByVariant({ sessionId, variantId: item.variant_id }, db);
+        failedItems.push({
+          cartItemId: item.cart_item_id,
+          variantId: item.variant_id,
+          title: item.title,
+          size: item.size,
+          color: item.color,
+          requestedQty: Number(item.qty),
+          availableQty: available,
+        });
+      }
+    }
+
+    await db.query("COMMIT");
+  } catch (err) {
+    await db.query("ROLLBACK");
+    throw err;
+  }
+
+  const cart = await getOrCreateCart({ sessionId });
+  return { cart, failedItems };
+};
+
+const adjustToAvailable = async ({ sessionId }) => {
+  const adjustedItems = [];
+  const removedItems = [];
+
+  await db.query("BEGIN");
+  try {
+    await cartRepo.cleanupExpiredReservations(db);
+
+    const cart = await cartRepo.findCartBySession(sessionId, db);
+    if (!cart) {
+      await db.query("COMMIT");
+      const fresh = await getOrCreateCart({ sessionId });
+      return { cart: fresh, adjustedItems, removedItems };
+    }
+
+    const items = await cartRepo.listSimpleCartItems(cart.id, db);
+
+    for (const item of items) {
+      const variant = await cartRepo.lockVariantById(item.variant_id, db);
+      if (!variant) continue;
+
+      const reservedOther = await cartRepo.findReservedOtherQty({ variantId: item.variant_id, sessionId }, db);
+      const available = Math.max(0, Number(variant.stock) - reservedOther);
+      const currentQty = Number(item.qty);
+
+      if (available <= 0) {
+        await cartRepo.deleteCartItemById(item.cart_item_id, db);
+        await cartRepo.deleteReservationByVariant({ sessionId, variantId: item.variant_id }, db);
+        removedItems.push({
+          cartItemId: item.cart_item_id,
+          title: item.title,
+          size: item.size,
+          color: item.color,
+        });
+        continue;
+      }
+
+      const nextQty = Math.min(currentQty, available);
+      if (nextQty < currentQty) {
+        await cartRepo.updateCartItemQtyById({ qty: nextQty, itemId: item.cart_item_id }, db);
+        adjustedItems.push({
+          cartItemId: item.cart_item_id,
+          title: item.title,
+          size: item.size,
+          color: item.color,
+          fromQty: currentQty,
+          toQty: nextQty,
+        });
+      }
+
+      await cartRepo.upsertReservation(
+        {
+          sessionId,
+          variantId: item.variant_id,
+          cartItemId: item.cart_item_id,
+          qty: nextQty,
+          reservationMinutes: RESERVATION_MINUTES,
+        },
+        db
+      );
+    }
+
+    await db.query("COMMIT");
+  } catch (err) {
+    await db.query("ROLLBACK");
+    throw err;
+  }
+
+  const cart = await getOrCreateCart({ sessionId });
+  return { cart, adjustedItems, removedItems };
+};
+
+const claimSessionCart = async ({ sessionId, userId }) => {
+  if (!sessionId) throw appError("sessionId is required", 400);
+  if (!userId) throw appError("userId is required", 400);
+
+  await db.query("BEGIN");
+  try {
+    await cartRepo.cleanupExpiredReservations(db);
+
+    let targetCart = await cartRepo.findCartBySession(sessionId, db);
+    if (!targetCart) {
+      targetCart = await cartRepo.findCartByUser(userId, db);
+    }
+    if (!targetCart) {
+      targetCart = await cartRepo.createUserCart({ sessionId, userId }, db);
+    }
+
+    // Ensure target cart belongs to current user+session.
+    targetCart = await cartRepo.updateCartOwner(
+      { cartId: targetCart.id, sessionId, userId },
+      db
+    );
+
+    const userCarts = await cartRepo.listUserCarts(userId, db);
+    const sourceCarts = userCarts.filter((c) => c.id !== targetCart.id);
+
+    for (const sourceCart of sourceCarts) {
+      const sourceItems = await cartRepo.listCartItemsRaw(sourceCart.id, db);
+      for (const item of sourceItems) {
+        const existingQty = await cartRepo.findCartItemQtyByVariant(
+          { cartId: targetCart.id, variantId: item.variant_id },
+          db
+        );
+        const mergedQty = Number(existingQty || 0) + Number(item.qty || 0);
+        await cartRepo.upsertCartItem(
+          { cartId: targetCart.id, variantId: item.variant_id, qty: mergedQty },
+          db
+        );
+      }
+      await cartRepo.deleteCartById(sourceCart.id, db);
+    }
+
+    await db.query("COMMIT");
+  } catch (err) {
+    await db.query("ROLLBACK");
+    throw err;
+  }
+
+  return getOrCreateCart({ sessionId });
+};
+
+module.exports = {
+  getOrCreateCart,
+  addItem,
+  updateItem,
+  removeItem,
+  refreshReservations,
+  adjustToAvailable,
+  claimSessionCart,
 };

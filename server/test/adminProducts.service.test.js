@@ -1,8 +1,8 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const adminProductsService = require("../src/services/adminProducts.service");
-const adminProductsRepo = require("../src/repositories/adminProducts.repository");
+const adminProductsService = require("../src/modules/adminProducts/service");
+const adminProductsRepo = require("../src/modules/adminProducts/repository");
 const db = require("../src/db");
 
 const originals = {

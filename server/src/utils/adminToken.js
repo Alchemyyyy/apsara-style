@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
+const { adminTokenSecret } = require("../config/token.config");
 
 function resolveSecret() {
-  return process.env.ADMIN_TOKEN_SECRET || process.env.ADMIN_KEY || "";
+  return adminTokenSecret;
 }
 
 function signAdminToken(payload, options = {}) {

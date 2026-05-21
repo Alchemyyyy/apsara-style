@@ -1,4 +1,4 @@
-const authRepo = require("../repositories/auth.repository");
+const authRepo = require("../modules/auth/repository");
 const { verifyUserToken } = require("../utils/userToken");
 
 function unauthorized(res, message = "Unauthorized") {

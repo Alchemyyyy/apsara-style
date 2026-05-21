@@ -1,4 +1,4 @@
-const adminAuthRepo = require("../repositories/adminAuth.repository");
+const adminAuthRepo = require("../modules/adminAuth/repository");
 const { verifyAdminToken } = require("../utils/adminToken");
 
 const ALL_ADMIN_ROLES = ["super_admin", "ops_admin", "catalog_admin"];

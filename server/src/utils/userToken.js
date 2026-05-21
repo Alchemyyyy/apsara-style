@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
+const { userTokenSecret } = require("../config/token.config");
 
 function resolveSecret() {
-  return process.env.USER_TOKEN_SECRET || process.env.ADMIN_TOKEN_SECRET || process.env.ADMIN_KEY || "";
+  return userTokenSecret;
 }
 
 function signUserToken(payload, options = {}) {

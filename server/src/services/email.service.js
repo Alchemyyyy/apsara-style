@@ -1,5 +1,7 @@
+const { clientUrl, emailMode, smtp } = require("../config/email.config");
+
 function getMode() {
-  return String(process.env.EMAIL_MODE || "disabled").trim().toLowerCase();
+  return emailMode;
 }
 
 function isEmailEnabled() {
@@ -8,7 +10,7 @@ function isEmailEnabled() {
 }
 
 function buildResetUrl(resetToken) {
-  const base = String(process.env.CLIENT_URL || "http://localhost:5173").replace(/\/$/, "");
+  const base = clientUrl.replace(/\/$/, "");
   const qp = new URLSearchParams({
     mode: "reset",
     token: String(resetToken || ""),
@@ -24,11 +26,7 @@ async function sendViaSmtp({ to, subject, text, html }) {
     throw new Error("nodemailer is not installed. Run: npm --prefix server install nodemailer");
   }
 
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT || 587);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  const from = process.env.MAIL_FROM || "APSARA STYLE <no-reply@apsara.local>";
+  const { host, port, user, pass, from } = smtp;
 
   if (!host || !user || !pass) {
     throw new Error("SMTP config missing: set SMTP_HOST, SMTP_USER, SMTP_PASS");

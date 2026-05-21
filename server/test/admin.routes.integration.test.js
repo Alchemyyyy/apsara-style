@@ -6,10 +6,10 @@ process.env.ADMIN_TOKEN_SECRET = process.env.ADMIN_TOKEN_SECRET || "test-admin-s
 
 const app = require("../src/app");
 const { signAdminToken } = require("../src/utils/adminToken");
-const adminAuthRepo = require("../src/repositories/adminAuth.repository");
-const adminProductsService = require("../src/services/adminProducts.service");
-const adminOrdersService = require("../src/services/adminOrders.service");
-const adminAuditService = require("../src/services/adminAudit.service");
+const adminAuthRepo = require("../src/modules/adminAuth/repository");
+const adminProductsService = require("../src/modules/adminProducts/service");
+const adminOrdersService = require("../src/modules/adminOrders/service");
+const adminAuditService = require("../src/modules/adminAudit/service");
 const db = require("../src/db");
 const runIntegration = process.env.RUN_INTEGRATION_TESTS === "1";
 const it = runIntegration ? test : test.skip;

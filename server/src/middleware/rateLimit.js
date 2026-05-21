@@ -1,10 +1,4 @@
-function appError(message, status = 400, extra = {}) {
-  const err = new Error(message);
-  err.status = status;
-  Object.assign(err, extra);
-  return err;
-}
-
+const { appError } = require("../shared/errors");
 function normalizeString(value) {
   return String(value || "").trim().toLowerCase();
 }

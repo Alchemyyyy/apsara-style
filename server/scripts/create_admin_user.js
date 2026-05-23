@@ -1,10 +1,10 @@
 require("dotenv").config();
 const { Client } = require("pg");
+const { databaseUrl } = require("../src/config/db.config");
 const { hashPassword } = require("../src/utils/passwordHash");
 
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) {
-  console.error("Missing DATABASE_URL");
+if (!databaseUrl) {
+  console.error("Missing database configuration. Set DATABASE_URL or DB_HOST/DB_NAME/DB_USER.");
   process.exit(1);
 }
 
@@ -31,7 +31,7 @@ async function main() {
     process.exit(1);
   }
 
-  const client = new Client({ connectionString: DATABASE_URL });
+  const client = new Client({ connectionString: databaseUrl });
   await client.connect();
 
   try {

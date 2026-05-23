@@ -134,8 +134,8 @@ npm --prefix client run dev
 1. Run auth-related migrations:
 
 ```bash
-psql "$DATABASE_URL" -f server/sql/migrate_admin_auth_rbac.sql
-psql "$DATABASE_URL" -f server/sql/migrate_password_reset_tokens.sql
+psql "$DATABASE_URL" -f server/sql/migrations/migrate_admin_auth_rbac.sql
+psql "$DATABASE_URL" -f server/sql/migrations/migrate_password_reset_tokens.sql
 ```
 
 2. Configure token/email env vars (`server/.env`):

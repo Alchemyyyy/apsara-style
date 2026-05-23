@@ -22,11 +22,11 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import AppNavbar from '@/components/layout/AppNavbar.vue'
-import AppFooter from '@/components/layout/AppFooter.vue'
-import { authBootstrapWarning, isAuthBootstrapping } from '@/bootstrap/authBootstrap'
-import UserToastStack from '@/components/common/UserToastStack.vue'
-import { useToast } from '@/composables/useToast'
+import AppNavbar from '@/app/components/layout/AppNavbar.vue'
+import AppFooter from '@/app/components/layout/AppFooter.vue'
+import { authBootstrapWarning, isAuthBootstrapping } from '@/app/bootstrap/authBootstrap'
+import UserToastStack from '@/shared/components/common/UserToastStack.vue'
+import { useToast } from '@/shared/composables/useToast'
 
 const route = useRoute()
 const { toasts, removeToast, triggerAction } = useToast()

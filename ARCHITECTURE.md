@@ -1,5 +1,51 @@
 # APSARA STYLE Architecture
 
+## Frontend Structure
+
+The frontend is organized by feature modules under `client/src/features`, with app shell and shared utilities split out explicitly.
+
+```text
+client/src/
+  app/
+    bootstrap/
+    components/layout/
+    router/
+  features/
+    admin/
+    auth/
+    cart/
+    home/
+    notifications/
+    orders/
+    products/
+    search/
+    stylist/
+    wishlist/
+  shared/
+    api/
+    components/common/
+    composables/
+    styles/
+```
+
+Frontend responsibilities:
+
+- `app`: application shell, global bootstrapping, router, and layout components.
+- `features/<domain>`: route views, feature-specific components, API wrappers, and local stores.
+- `shared/api`: cross-feature API clients and low-level request/session helpers.
+- `shared/components/common`: reusable UI components that are not owned by one feature.
+- `shared/composables`: reusable Vue composables.
+- `shared/styles`: global theme and shared CSS variables.
+
+Feature views should not import low-level HTTP clients directly when a feature API wrapper exists. Prefer a small API module such as `features/admin/api/adminProductsApi.js` so endpoint paths and response normalization stay outside Vue templates.
+
+Large Vue files should be split by responsibility:
+
+- Extract presentational sections into feature components.
+- Keep API calls in feature API modules.
+- Keep reusable state in feature stores or composables.
+- Keep route-level views focused on orchestration.
+
 ## Backend Structure
 
 Request flow:
@@ -162,4 +208,7 @@ for f in $(rg --files server/src | rg '\\.js$'); do node --check "$f" || exit 1;
 
 # Frontend production build
 npm --prefix client run build
+
+# Frontend unit tests
+npm --prefix client test
 ```

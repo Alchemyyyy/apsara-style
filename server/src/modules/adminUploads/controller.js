@@ -5,10 +5,11 @@ const path = require("path");
 const multer = require("multer");
 const sharp = require("sharp");
 const { v2: cloudinary } = require("cloudinary");
+const { serverUrl } = require("../../config/app.config");
 const { cloudinary: cloudinaryConfig, isCloudinaryConfigured, uploadStorage } = require("../../config/uploads.config");
 const adminAuditRepo = require("../adminAudit/repository");
 
-const uploadRoot = path.resolve(__dirname, "../../uploads/products");
+const uploadRoot = path.resolve(__dirname, "../../../uploads/products");
 fs.mkdirSync(uploadRoot, { recursive: true });
 
 const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -103,7 +104,7 @@ const uploadImages = (req, res, next) => {
       return next(e);
     }
 
-    const origin = `${req.protocol}://${req.get("host")}`;
+    const origin = serverUrl.replace(/\/+$/, "");
 
     const work = async () => {
       const data = [];

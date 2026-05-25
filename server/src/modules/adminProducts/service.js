@@ -5,7 +5,7 @@ const fs = require("fs/promises");
 const path = require("path");
 
 const VALID_GENDERS = ["men", "women", "unisex"];
-const uploadsProductsDir = path.resolve(__dirname, "../../uploads/products");
+const uploadsProductsDir = path.resolve(__dirname, "../../../uploads/products");
 
 function toLocalUploadPath(urlValue) {
   const raw = String(urlValue || "").trim();

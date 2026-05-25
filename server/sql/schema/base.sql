@@ -1,4 +1,4 @@
--- APSARA STYLE - PostgreSQL Schema
+-- SABY ORDER - PostgreSQL Schema
 -- Enable UUID generation
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 

@@ -3,7 +3,7 @@
     <div class="container py-5">
       <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
         <div>
-          <div class="brand-wordmark mb-1">APSARA STYLE</div>
+          <BrandLogo size="md" class="mb-1" />
           <h2 class="checkout-title mb-1">Checkout</h2>
           <p class="text-muted mb-0">Complete your order details.</p>
         </div>
@@ -261,6 +261,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { http } from '@/shared/api/http'
@@ -532,7 +533,7 @@ onBeforeUnmount(stopPaymentPolling)
 
 <style scoped>
 .checkout-page {
-  background: linear-gradient(180deg, #fcfcfc 0%, #f6f7f9 100%);
+  background: #ffffff;
 }
 
 .checkout-title {
@@ -543,7 +544,7 @@ onBeforeUnmount(stopPaymentPolling)
 
 .checkout-card,
 .summary-card {
-  border: 1px solid #e7e7ea;
+  border: 1px solid var(--as-border);
   border-radius: 14px;
   background: #fff;
 }

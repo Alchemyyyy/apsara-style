@@ -1,5 +1,5 @@
 /**
- * APSARA STYLE - Seed Catalog (300 products)
+ * SABY ORDER - Seed Catalog (300 products)
  * Seeds: categories, products, product_images, product_variants
  *
  * Requirements:
@@ -270,7 +270,7 @@ async function insertImages(client, productId, urls) {
       INSERT INTO product_images (product_id, url, alt_text, sort_order)
       VALUES ($1,$2,$3,$4)
       `,
-      [productId, url, "APSARA STYLE product image", order++]
+      [productId, url, "SABY ORDER product image", order++]
     );
   }
 }

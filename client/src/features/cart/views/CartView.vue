@@ -3,7 +3,7 @@
     <div class="container py-5">
       <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
         <div>
-          <div class="brand-wordmark mb-1">APSARA STYLE</div>
+          <BrandLogo size="md" class="mb-1" />
           <h2 class="cart-title mb-1">Bag</h2>
           <p class="text-muted mb-0">Review your items before checkout.</p>
         </div>
@@ -99,6 +99,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { http } from '@/shared/api/http'
 import { useToast } from '@/shared/composables/useToast'
@@ -199,7 +200,7 @@ onBeforeUnmount(clearUndo)
 
 <style scoped>
 .cart-page {
-  background: linear-gradient(180deg, #fcfcfc 0%, #f6f7f9 100%);
+  background: #ffffff;
 }
 
 .cart-title {
@@ -219,7 +220,7 @@ onBeforeUnmount(clearUndo)
   grid-template-columns: 104px 1fr 100px;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid #e7e7ea;
+  border: 1px solid var(--as-border);
   border-radius: 14px;
   background: #fff;
 }
@@ -244,7 +245,7 @@ onBeforeUnmount(clearUndo)
 .summary-card {
   position: sticky;
   top: 96px;
-  border: 1px solid #e7e7ea;
+  border: 1px solid var(--as-border);
   border-radius: 14px;
   background: #fff;
   padding: 1.2rem;
@@ -269,7 +270,7 @@ onBeforeUnmount(clearUndo)
 }
 
 .cart-empty-card {
-  border: 1px solid #e7e7ea;
+  border: 1px solid var(--as-border);
   border-radius: 14px;
   background: #fff;
   padding: 1.4rem;

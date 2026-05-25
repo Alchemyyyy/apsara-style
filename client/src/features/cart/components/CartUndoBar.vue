@@ -43,7 +43,7 @@ defineEmits(['undo', 'close'])
   z-index: 2050;
   width: min(560px, calc(100vw - 2rem));
   border: 1px solid #dbe2ea;
-  border-left: 4px solid var(--as-gold, #c6a97a);
+  border-left: 4px solid var(--as-pink, #e96ea5);
   border-radius: 14px;
   background: #ffffff;
   box-shadow: 0 16px 34px rgba(15, 23, 42, 0.16);

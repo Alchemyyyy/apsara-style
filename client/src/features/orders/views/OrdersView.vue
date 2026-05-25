@@ -3,7 +3,7 @@
     <div class="container py-5">
       <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
         <div>
-          <div class="brand-wordmark mb-1">APSARA STYLE</div>
+          <BrandLogo size="md" class="mb-1" />
           <h2 class="orders-title mb-1">My Orders</h2>
           <p class="text-muted mb-0">Track and manage your recent purchases.</p>
         </div>
@@ -157,6 +157,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { computed, ref, onMounted } from 'vue'
 import { http } from '@/shared/api/http'
 
@@ -252,7 +253,7 @@ onMounted(load)
 
 <style scoped>
 .orders-page {
-  background: linear-gradient(180deg, #fcfcfc 0%, #f6f7f9 100%);
+  background: #ffffff;
 }
 
 .orders-title {
@@ -265,7 +266,7 @@ onMounted(load)
 .lookup-detail-card,
 .order-card,
 .overview-card {
-  border: 1px solid #e7e7ea;
+  border: 1px solid var(--as-border);
   border-radius: 14px;
   background: #fff;
 }

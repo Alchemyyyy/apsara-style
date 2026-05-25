@@ -17,7 +17,7 @@ All admin endpoints return JSON in this pattern:
 Request body:
 ```json
 {
-  "email": "admin@apsara.com",
+  "email": "admin@sabyorder.com",
   "password": "StrongPassword123!"
 }
 ```
@@ -29,7 +29,7 @@ Response data:
   "admin": {
     "id": "uuid",
     "fullName": "Admin User",
-    "email": "admin@apsara.com",
+    "email": "admin@sabyorder.com",
     "roles": ["super_admin"]
   }
 }
@@ -54,7 +54,7 @@ Response data:
   "admin": {
     "id": "uuid",
     "fullName": "Admin User",
-    "email": "admin@apsara.com",
+    "email": "admin@sabyorder.com",
     "roles": ["super_admin"]
   }
 }
@@ -162,7 +162,7 @@ Example request:
   "description": "Smart casual cotton shirt.",
   "base_price": 39.99,
   "discount_price": 32.99,
-  "brand": "Apsara",
+  "brand": "Saby Order",
   "parent_sku": "APS-SHIRT-OXFORD",
   "material": "100% cotton",
   "care": "Machine wash cold",
@@ -170,7 +170,7 @@ Example request:
   "model_note": "Model wears size M",
   "size_guide": "S-XL regular sizing",
   "style_tags": ["smart-casual", "office"],
-  "meta_title": "Classic Oxford Shirt for Men | Apsara Style",
+  "meta_title": "Classic Oxford Shirt for Men | Saby Order",
   "meta_description": "Breathable cotton oxford shirt for work and weekend styling.",
   "images": [
     {
@@ -443,7 +443,7 @@ Login:
 ```bash
 curl -X POST http://localhost:4000/api/admin/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@apsara.com","password":"StrongPassword123!"}'
+  -d '{"email":"admin@sabyorder.com","password":"StrongPassword123!"}'
 ```
 
 List products:

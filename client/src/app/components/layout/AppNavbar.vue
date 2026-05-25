@@ -2,7 +2,11 @@
   <nav class="navbar navbar-expand-lg sticky-top app-navbar">
     <div class="container nav-shell">
       <RouterLink class="navbar-brand brand-left mb-0" to="/">
-        <span class="brand-title">APSARA STYLE</span>
+        <BrandLogo size="nav" />
+        <span class="brand-word">
+          <span class="brand-word-main">Saby</span>
+          <span class="brand-word-accent">Order</span>
+        </span>
       </RouterLink>
 
       <ul class="navbar-nav d-none d-lg-flex center-nav">
@@ -192,6 +196,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { http } from '@/shared/api/http'
@@ -460,32 +465,63 @@ onUnmounted(() => {
 
 <style scoped>
 .app-navbar {
-  border-bottom: 1px solid #ece8df;
+  border-bottom: 1px solid var(--as-border);
   background: #ffffff;
-  box-shadow: 0 8px 20px rgba(17, 17, 17, 0.03);
+  box-shadow: 0 10px 28px rgba(87, 48, 64, 0.06);
+  backdrop-filter: blur(14px);
 }
 
 .nav-shell {
-  min-height: 72px;
+  min-height: 86px;
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
 .brand-left {
-  margin-right: 1rem;
+  margin-right: 1.1rem;
   color: var(--as-black);
   display: inline-flex;
   align-items: center;
+  gap: 0.65rem;
   text-decoration: none;
 }
 
-.brand-title {
-  font-size: 1.12rem;
+.brand-word {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28rem;
+  padding-bottom: 0.28rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.24rem;
   line-height: 1;
-  font-weight: 700;
-  letter-spacing: 0.18em;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.brand-word::after {
+  content: "";
+  position: absolute;
+  left: 0.08rem;
+  bottom: 0;
+  width: 72%;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--as-pink);
+}
+
+.brand-word-main {
+  color: var(--as-ink);
   text-transform: uppercase;
+}
+
+.brand-word-accent {
+  color: var(--as-pink);
+  font-style: italic;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(17, 24, 39, 0.16);
 }
 
 .center-nav {
@@ -501,7 +537,7 @@ onUnmounted(() => {
 }
 
 .center-link {
-  color: #262626;
+  color: #382a30;
   font-weight: 600;
   font-size: 0.92rem;
   padding: 0.35rem 0.72rem;
@@ -510,12 +546,12 @@ onUnmounted(() => {
 }
 
 .center-link:hover {
-  color: #111;
+  color: var(--as-pink-dark);
 }
 
 .center-link.is-active-main {
-  color: #111;
-  border-bottom-color: var(--as-gold);
+  color: var(--as-ink);
+  border-bottom-color: var(--as-pink);
 }
 
 .nav-mega-dropdown {
@@ -524,9 +560,9 @@ onUnmounted(() => {
   left: 50%;
   transform: translateX(-50%);
   background: #fff;
-  border: 1px solid #ece8df;
+  border: 1px solid var(--as-border);
   border-radius: 10px;
-  box-shadow: 0 14px 34px rgba(17, 17, 17, 0.08);
+  box-shadow: 0 18px 42px rgba(87, 48, 64, 0.12);
   min-width: 480px;
   padding: 0.9rem 1rem;
   z-index: 30;
@@ -544,7 +580,7 @@ onUnmounted(() => {
 }
 
 .dropdown-link {
-  color: #333;
+  color: #46363d;
   text-decoration: none;
   font-size: 0.85rem;
   line-height: 1.3;
@@ -552,7 +588,7 @@ onUnmounted(() => {
 }
 
 .dropdown-link:hover {
-  color: #111;
+  color: var(--as-pink-dark);
 }
 
 .nav-dropdown-fade-enter-active,
@@ -588,13 +624,13 @@ onUnmounted(() => {
 }
 
 .plain-icon {
-  color: #252525;
+  color: #3a2c32;
   text-decoration: none;
   transition: color 0.16s ease;
 }
 
 .plain-icon:hover {
-  color: #111;
+  color: var(--as-pink-dark);
 }
 
 .nav-ic {
@@ -626,25 +662,25 @@ onUnmounted(() => {
   transform: translateY(-50%);
   width: 18px;
   height: 18px;
-  color: #767676;
+  color: #9c7687;
   pointer-events: none;
 }
 
 .search-input {
   border-radius: 6px;
-  border: 1px solid #e0dbd2;
-  background: #f7f4ef;
+  border: 1px solid var(--as-border);
+  background: var(--as-blush-soft);
   padding-left: 36px;
   padding-right: 10px;
   height: 48px;
   font-size: 0.94rem;
-  color: #1f1f1f;
+  color: var(--as-ink);
 }
 
 .search-input:focus {
-  border-color: #d1b489;
+  border-color: var(--as-pink);
   background: #fff;
-  box-shadow: 0 0 0 0.14rem rgba(198, 169, 122, 0.2);
+  box-shadow: 0 0 0 0.14rem rgba(233, 110, 165, 0.18);
 }
 
 .search-input-mobile {
@@ -654,14 +690,14 @@ onUnmounted(() => {
 .search-btn {
   border: 0;
   background: transparent;
-  color: #111;
+  color: var(--as-ink);
 }
 
 .account-inline {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  color: #252525;
+  color: #3a2c32;
   text-decoration: none;
   padding: 0.2rem 0.25rem;
   border: 0;
@@ -670,7 +706,7 @@ onUnmounted(() => {
 }
 
 .account-inline:hover {
-  color: #111;
+  color: var(--as-pink-dark);
 }
 
 .account-name {
@@ -681,7 +717,7 @@ onUnmounted(() => {
   white-space: nowrap;
   font-weight: 500;
   font-size: 0.84rem;
-  color: #333;
+  color: #46363d;
 }
 
 .account-toggle,
@@ -698,7 +734,7 @@ onUnmounted(() => {
 
 .account-menu {
   min-width: 220px;
-  border: 1px solid #ece8df;
+  border: 1px solid var(--as-border);
   border-radius: 10px;
   padding: 0.34rem;
 }
@@ -725,14 +761,14 @@ onUnmounted(() => {
   font-size: 0.58rem;
   font-weight: 700;
   line-height: 1;
-  background: #111;
+  background: var(--as-pink);
   color: #fff;
   border: 1px solid #fff;
 }
 
 .nav-mobile {
-  border-top: 1px solid #ece8df;
-  background: #fff;
+  border-top: 1px solid var(--as-border);
+  background: #fffafb;
 }
 
 .nav-toggler {
@@ -741,7 +777,7 @@ onUnmounted(() => {
 }
 
 .mobile-gender-block {
-  border: 1px solid #e2e8f2;
+  border: 1px solid var(--as-border);
   border-radius: 10px;
   padding: 0.25rem 0.65rem 0.5rem;
   background: #fff;
@@ -765,9 +801,14 @@ onUnmounted(() => {
 }
 
 @media (max-width: 991.98px) {
-  .brand-title {
-    font-size: 0.98rem;
-    letter-spacing: 0.14em;
+  .nav-shell {
+    min-height: 78px;
+  }
+
+  .brand-word {
+    gap: 0.18rem;
+    font-size: 1rem;
+    letter-spacing: 0.03em;
   }
 }
 </style>

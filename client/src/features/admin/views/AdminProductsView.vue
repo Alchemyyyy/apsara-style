@@ -851,18 +851,18 @@ onMounted(loadAll)
 }
 
 .admin-cta-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  background: var(--as-pink);
   color: #ffffff;
-  border: 1px solid #60a5fa;
+  border: 1px solid var(--as-pink);
   font-weight: 700;
   letter-spacing: 0.01em;
-  box-shadow: 0 8px 18px rgba(96, 165, 250, 0.28);
+  box-shadow: 0 8px 18px rgba(233, 110, 165, 0.28);
 }
 
 .admin-cta-btn:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  background: var(--as-pink-dark);
   color: #ffffff;
-  border-color: #3b82f6;
+  border-color: var(--as-pink-dark);
 }
 
 .admin-cta-btn:disabled {

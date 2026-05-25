@@ -1,6 +1,6 @@
 <template>
   <div class="container py-5">
-    <div class="brand-wordmark mb-1">APSARA STYLE</div>
+    <BrandLogo size="md" class="mb-1" />
     <h2 class="h4">Search</h2>
     <div class="text-muted">Query: "{{ query }}"</div>
 
@@ -19,6 +19,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { http } from '@/shared/api/http'

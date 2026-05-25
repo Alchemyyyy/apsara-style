@@ -3,7 +3,7 @@
     <div class="container py-5 auth-lift" style="max-width: 560px;">
       <div class="auth-card bg-white border rounded-4 p-4 p-md-5">
         <div class="text-center mb-4">
-          <div class="brand-wordmark mb-2">APSARA STYLE</div>
+          <BrandLogo size="lg" class="mb-2" />
           <h2 class="h4 mb-2">
             {{ isLoggedIn ? 'You Are Logged In' : (mode === 'login' ? 'Welcome Back' : 'Create Your Account') }}
           </h2>
@@ -180,6 +180,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
@@ -546,7 +547,7 @@ async function submitReset() {
 
 <style scoped>
 .auth-page {
-  background: #f8f8f8;
+  background: #ffffff;
 }
 
 .auth-lift {
@@ -554,7 +555,8 @@ async function submitReset() {
 }
 
 .auth-card {
-  box-shadow: 0 20px 55px rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--as-border);
+  box-shadow: 0 22px 58px rgba(87, 48, 64, 0.12);
 }
 
 .auth-input {
@@ -592,8 +594,8 @@ async function submitReset() {
 .mode-switch {
   display: flex;
   gap: 0.35rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--as-blush-soft);
+  border: 1px solid var(--as-border);
 }
 
 .auth-mode-btn {
@@ -605,34 +607,34 @@ async function submitReset() {
 
 .auth-mode-btn.is-active {
   color: #ffffff;
-  background: var(--as-black, #111111);
-  box-shadow: 0 8px 16px rgba(17, 17, 17, 0.18);
+  background: var(--as-ink, #161113);
+  box-shadow: 0 10px 20px rgba(87, 48, 64, 0.18);
 }
 
 .auth-mode-btn:not(.is-active):hover {
-  color: var(--as-black, #111111);
-  background: rgba(198, 169, 122, 0.14);
+  color: var(--as-pink-dark);
+  background: rgba(233, 110, 165, 0.12);
 }
 
 .required-mark {
-  color: #b45309;
+  color: var(--as-pink-dark);
 }
 
 .auth-action-btn {
-  background: #111111 !important;
-  border-color: #111111 !important;
+  background: var(--as-ink) !important;
+  border-color: var(--as-ink) !important;
   color: #ffffff !important;
 }
 
 .auth-action-btn:hover:not(:disabled) {
-  background: #000000 !important;
-  border-color: #000000 !important;
+  background: #000 !important;
+  border-color: var(--as-ink) !important;
   color: #ffffff !important;
 }
 
 .auth-action-btn:disabled {
-  background: #111111 !important;
-  border-color: #111111 !important;
+  background: var(--as-ink) !important;
+  border-color: var(--as-ink) !important;
   color: #ffffff !important;
   opacity: 0.65;
   cursor: not-allowed !important;

@@ -1,12 +1,21 @@
 :root {
-  --as-black: #111111;
-  --as-bg: #fafafa;
-  --as-gray: #b5b5b5;
-  --as-gold: #c6a97a;
+  --as-black: #161113;
+  --as-ink: #161113;
+  --as-bg: #ffffff;
+  --as-surface: #ffffff;
+  --as-blush: #fde8f1;
+  --as-blush-soft: #fff1f6;
+  --as-pink: #e96ea5;
+  --as-pink-dark: #c84d83;
+  --as-pink-deep: #9f2f63;
+  --as-gray: #8a7a82;
+  --as-border: #f0d5e1;
+  --as-shadow: rgba(233, 110, 165, 0.16);
+  --as-gold: var(--as-pink);
 }
 
 body {
-  background: var(--as-bg);
+  background: #ffffff;
   color: var(--as-black);
 }
 
@@ -16,9 +25,10 @@ body {
 }
 
 .btn-as {
-  background: var(--as-black);
+  background: var(--as-ink);
   color: white;
-  border: 1px solid var(--as-black);
+  border: 1px solid var(--as-ink);
+  box-shadow: 0 10px 22px rgba(22, 17, 19, 0.12);
 }
 .btn-as:hover {
   background: #000;
@@ -26,11 +36,11 @@ body {
 }
 
 .link-muted {
-  color: #444;
+  color: #6f5c65;
   text-decoration: none;
 }
 .link-muted:hover {
-  color: #000;
+  color: var(--as-pink-dark);
 }
 
 .card-minimal {
@@ -40,17 +50,17 @@ body {
 }
 
 .admin-panel-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--as-surface);
+  border: 1px solid var(--as-border);
   border-radius: 0.9rem;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 14px 34px rgba(82, 45, 61, 0.07);
 }
 
 .admin-table-card .table thead th {
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--as-gray);
   border-bottom-width: 1px;
 }
 

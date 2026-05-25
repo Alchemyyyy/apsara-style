@@ -2,7 +2,7 @@
   <div class="products-page">
     <div class="container-xxl py-4 py-lg-5">
       <section class="catalog-head">
-        <div class="brand-wordmark mb-1">APSARA STYLE</div>
+        <BrandLogo size="md" class="mb-1" />
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-2">
           <h1 class="collection-title text-capitalize mb-0">{{ gender }} Collection</h1>
           <button class="btn btn-dark btn-sm d-lg-none" @click="openFilters">
@@ -228,6 +228,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { http } from '@/shared/api/http'
@@ -531,7 +532,7 @@ onUnmounted(() => {
 
 <style scoped>
 .products-page {
-  background: #f7f8fa;
+  background: #ffffff;
   min-height: 100vh;
 }
 
@@ -560,7 +561,7 @@ onUnmounted(() => {
 .rail-section + .rail-section {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--as-border);
 }
 
 .rail-title {
@@ -568,7 +569,7 @@ onUnmounted(() => {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #475569;
+  color: var(--as-pink-dark);
   margin-bottom: 0.6rem;
 }
 
@@ -586,17 +587,17 @@ onUnmounted(() => {
   text-align: left;
   padding: 0.45rem 0.2rem;
   border-radius: 6px;
-  color: #0f172a;
+  color: var(--as-ink);
   font-size: 0.92rem;
 }
 
 .rail-link.active {
-  background: #eef2f7;
+  background: var(--as-blush-soft);
   font-weight: 600;
 }
 
 .rail-link .count {
-  color: #64748b;
+  color: #8a7a82;
   font-size: 0.82rem;
 }
 
@@ -610,7 +611,7 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 0.8rem;
   background: #fff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--as-border);
   border-radius: 12px;
   padding: 0.7rem 0.8rem;
 }
@@ -626,7 +627,7 @@ onUnmounted(() => {
 }
 
 .filters-wrap {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--as-border);
   border-radius: 12px;
   background: #fff;
   padding: 0.55rem;
@@ -647,9 +648,9 @@ onUnmounted(() => {
 }
 
 .type-chip {
-  border: 1px solid #c7d2e3;
+  border: 1px solid var(--as-border);
   background: #fff;
-  color: #1e293b;
+  color: var(--as-ink);
   border-radius: 999px;
   height: 34px;
   padding: 0 0.8rem;
@@ -658,9 +659,9 @@ onUnmounted(() => {
 }
 
 .type-chip.active {
-  border-color: #0b4f8a;
-  background: #e8f2fb;
-  color: #0b4f8a;
+  border-color: var(--as-pink);
+  background: var(--as-blush-soft);
+  color: var(--as-pink-deep);
 }
 
 .active-types .type-chip {
@@ -681,15 +682,15 @@ onUnmounted(() => {
 .product-skeleton {
   height: 470px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--as-border);
   background:
-    linear-gradient(90deg, #f2f4f7 25%, #e9edf2 37%, #f2f4f7 63%);
+    linear-gradient(90deg, #fff1f6 25%, #f7ddea 37%, #fff1f6 63%);
   background-size: 400% 100%;
   animation: shimmer 1.3s ease infinite;
 }
 
 .empty-wrap {
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed var(--as-border);
   border-radius: 14px;
   background: #fff;
   text-align: center;
@@ -707,14 +708,14 @@ onUnmounted(() => {
   font-size: 0.72rem;
   font-weight: 700;
   background: #fff;
-  color: #0f172a;
+  color: var(--as-pink-deep);
 }
 
 .offcanvas-backdrop {
   position: fixed;
   inset: 0;
   z-index: 1080;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(22, 17, 19, 0.45);
   display: flex;
   justify-content: flex-end;
 }
@@ -723,10 +724,10 @@ onUnmounted(() => {
   width: min(420px, 92vw);
   height: 100%;
   background: #fff;
-  border-left: 1px solid #dbe3f0;
+  border-left: 1px solid var(--as-border);
   display: flex;
   flex-direction: column;
-  box-shadow: -12px 0 30px rgba(15, 23, 42, 0.2);
+  box-shadow: -12px 0 30px rgba(87, 48, 64, 0.2);
 }
 
 .offcanvas-header,

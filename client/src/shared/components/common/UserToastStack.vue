@@ -71,7 +71,7 @@ defineEmits(['close', 'action'])
 }
 
 .user-toast-item.is-success {
-  border-left-color: var(--as-gold, #c6a97a);
+  border-left-color: var(--as-pink, #e96ea5);
 }
 
 .user-toast-item.is-error {
@@ -85,7 +85,7 @@ defineEmits(['close', 'action'])
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--as-gold, #c6a97a);
+  color: var(--as-pink, #e96ea5);
 }
 
 .user-toast-item.is-error .toast-icon {
@@ -132,7 +132,7 @@ defineEmits(['close', 'action'])
 }
 
 .toast-action:hover {
-  color: var(--as-gold, #c6a97a);
+  color: var(--as-pink, #e96ea5);
 }
 
 .user-toast-enter-active,

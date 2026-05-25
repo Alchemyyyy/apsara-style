@@ -26,7 +26,7 @@
 
         <div class="col-lg-5">
           <div class="purchase-panel">
-            <p class="brand-line mb-1">APSARA STYLE</p>
+            <BrandLogo size="sm" class="mb-2" />
             <p class="product-meta mb-2">{{ product.category_name }} · {{ product.gender }}</p>
             <h1 class="product-title">{{ product.title }}</h1>
 
@@ -171,6 +171,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { ref, computed, onMounted, watch } from 'vue'
 import { http } from '@/shared/api/http'
 import { trackEvent } from '@/shared/api/events'
@@ -321,7 +322,7 @@ watch(
 
 <style scoped>
 .product-detail-page {
-  background: #f7f8fa;
+  background: #ffffff;
   min-height: 100vh;
 }
 
@@ -340,7 +341,7 @@ watch(
 }
 
 .thumb-btn {
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--as-border);
   border-radius: 0;
   padding: 0;
   width: 100%;
@@ -350,7 +351,7 @@ watch(
 }
 
 .thumb-btn.active {
-  border-color: #111;
+  border-color: var(--as-pink);
 }
 
 .thumb-btn img {
@@ -361,8 +362,8 @@ watch(
 
 .hero-image-wrap {
   position: relative;
-  background: #f5f5f5;
-  border: 1px solid #ececec;
+  background: var(--as-blush-soft);
+  border: 1px solid var(--as-border);
   overflow: hidden;
 }
 
@@ -378,7 +379,7 @@ watch(
   left: 12px;
   padding: 0.28rem 0.62rem;
   border-radius: 999px;
-  background: #c81e1e;
+  background: var(--as-pink-dark);
   color: #fff;
   font-size: 0.76rem;
   font-weight: 700;
@@ -387,14 +388,15 @@ watch(
 
 .purchase-panel {
   background: #fff;
-  border: 1px solid #e7e7e7;
+  border: 1px solid var(--as-border);
+  box-shadow: 0 18px 42px rgba(87, 48, 64, 0.08);
   padding: 1.1rem;
   position: sticky;
   top: 96px;
 }
 
 .brand-line {
-  color: #111;
+  color: var(--as-pink-dark);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -405,11 +407,11 @@ watch(
   font-size: clamp(1.3rem, 1.9vw, 1.7rem);
   line-height: 1.2;
   font-weight: 650;
-  color: #111;
+  color: var(--as-ink);
 }
 
 .product-meta {
-  color: #666;
+  color: #7b6871;
   font-size: 0.85rem;
   text-transform: capitalize;
 }
@@ -425,11 +427,11 @@ watch(
   font-size: 1.6rem;
   line-height: 1;
   font-weight: 700;
-  color: #111;
+  color: var(--as-ink);
 }
 
 .base-price {
-  color: #666;
+  color: #8d7a83;
   text-decoration: line-through;
 }
 
@@ -441,13 +443,13 @@ watch(
   font-size: 0.72rem;
   font-weight: 700;
   border-radius: 999px;
-  color: #8d1f1f;
-  background: #ffe4e4;
+  color: var(--as-pink-deep);
+  background: var(--as-blush);
 }
 
 .product-description {
   margin: 1rem 0 0;
-  color: #444;
+  color: #5f4f56;
   line-height: 1.6;
 }
 
@@ -460,7 +462,7 @@ watch(
   letter-spacing: 0.04em;
   font-weight: 650;
   text-transform: uppercase;
-  color: #666;
+  color: #7b6871;
   margin-bottom: 0.55rem;
 }
 
@@ -483,7 +485,7 @@ watch(
 }
 
 .option-btn {
-  border: 1px solid #cfcfcf;
+  border: 1px solid var(--as-border);
   background: #fff;
   color: #111;
   border-radius: 0;
@@ -494,8 +496,8 @@ watch(
 }
 
 .option-btn.active {
-  border-color: #111;
-  background: #111;
+  border-color: var(--as-ink);
+  background: var(--as-ink);
   color: #fff;
 }
 
@@ -516,8 +518,8 @@ watch(
 
 .cta-main {
   border-radius: 8px;
-  border: 1px solid #111;
-  background: #111;
+  border: 1px solid var(--as-ink);
+  background: var(--as-ink);
   color: #fff;
   font-weight: 650;
   min-height: 48px;
@@ -527,8 +529,8 @@ watch(
 }
 
 .cta-main:hover:not(:disabled) {
-  background: #262626;
-  border-color: #262626;
+  background: #000;
+  border-color: var(--as-ink);
   transform: translateY(-1px);
 }
 
@@ -542,9 +544,9 @@ watch(
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1px solid #ccd4de;
+  border: 1px solid var(--as-border);
   background: #fff;
-  color: #1f2937;
+  color: var(--as-ink);
   padding: 0;
   font-size: 1.35rem;
   line-height: 1;
@@ -554,14 +556,14 @@ watch(
 }
 
 .cta-side:hover {
-  border-color: #111;
-  background: #f8fafc;
-  color: #111;
+  border-color: var(--as-pink);
+  background: var(--as-blush-soft);
+  color: var(--as-pink-dark);
 }
 
 .cta-side.active {
-  border-color: var(--as-gold, #c6a97a);
-  color: var(--as-gold, #c6a97a);
+  border-color: var(--as-pink, #e96ea5);
+  color: var(--as-pink, #e96ea5);
 }
 
 .bag-modal-backdrop {

@@ -61,7 +61,7 @@ async function dispatchEmail({ to, subject, text, html, consolePayload = {} }) {
 
 async function sendPasswordResetEmail({ to, resetToken, expiresMinutes = 30 }) {
   const resetUrl = buildResetUrl(resetToken);
-  const subject = "APSARA STYLE Password Reset";
+  const subject = "SABY ORDER Password Reset";
   const text = [
     "We received a request to reset your password.",
     "",
@@ -106,7 +106,7 @@ function returnReasonLabel(reason) {
 async function sendOrderPlacedEmail({ to, order, template }) {
   if (!to || !order) return { sent: false, mode: getMode() };
   const lead = String(template?.inAppMessage || "Thank you for your order.").trim();
-  const subject = String(template?.emailSubject || `APSARA STYLE Order Confirmed - ${order.order_code}`).trim();
+  const subject = String(template?.emailSubject || `SABY ORDER Order Confirmed - ${order.order_code}`).trim();
   const text = [
     lead,
     "",
@@ -138,7 +138,7 @@ async function sendOrderStatusChangedEmail({ to, order, previousStatus, nextStat
   const lead = String(template?.inAppMessage || "Your order status has been updated.").trim();
   const subject = String(
     template?.emailSubject ||
-      `APSARA STYLE Order Update - ${order.order_code} is now ${String(nextStatus).toUpperCase()}`
+      `SABY ORDER Order Update - ${order.order_code} is now ${String(nextStatus).toUpperCase()}`
   ).trim();
   const text = [
     lead,
@@ -175,7 +175,7 @@ async function sendReturnRequestedEmail({ to, order, returnRequest, template }) 
   const reason = returnReasonLabel(returnRequest.reason);
   const lead = String(template?.inAppMessage || "We received your return request.").trim();
   const subject = String(
-    template?.emailSubject || `APSARA STYLE Return Request Received - ${order.order_code}`
+    template?.emailSubject || `SABY ORDER Return Request Received - ${order.order_code}`
   ).trim();
   const text = [
     lead,
@@ -224,7 +224,7 @@ async function sendReturnStatusUpdatedEmail({
   const lead = String(template?.inAppMessage || "Your return request status has been updated.").trim();
   const subject = String(
     template?.emailSubject ||
-      `APSARA STYLE Return Update - ${order.order_code} is now ${String(nextStatus).toUpperCase()}`
+      `SABY ORDER Return Update - ${order.order_code} is now ${String(nextStatus).toUpperCase()}`
   ).trim();
   const note = String(statusNote || "").trim();
   const text = [

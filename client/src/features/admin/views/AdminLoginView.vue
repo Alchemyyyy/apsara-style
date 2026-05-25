@@ -3,14 +3,14 @@
     <div class="container py-5 auth-lift" style="max-width: 520px;">
       <div class="auth-card bg-white border rounded-4 p-4 p-md-5">
         <div class="text-center mb-4">
-          <div class="brand-wordmark mb-2">APSARA STYLE</div>
+          <BrandLogo size="lg" class="mb-2" />
           <span class="badge text-bg-dark mb-3 px-3 py-2">ADMIN PORTAL</span>
           <h2 class="h4 mb-2">Admin Login</h2>
           <p class="text-muted mb-0">Sign in with your admin email and password.</p>
         </div>
 
         <label class="form-label fw-medium">Email</label>
-        <input class="form-control auth-input" v-model="email" type="email" placeholder="admin@apsara.com" />
+        <input class="form-control auth-input" v-model="email" type="email" placeholder="admin@sabyorder.com" />
 
         <label class="form-label fw-medium mt-3">Password</label>
         <div class="password-field">
@@ -54,6 +54,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { adminHttp, setAdminAuthState } from '@/features/admin/api/adminHttp'
@@ -107,7 +108,7 @@ async function login() {
 
 <style scoped>
 .auth-page {
-  background: #f8f8f8;
+  background: #ffffff;
 }
 
 .auth-lift {
@@ -115,7 +116,8 @@ async function login() {
 }
 
 .auth-card {
-  box-shadow: 0 20px 55px rgba(17, 17, 17, 0.08);
+  border: 1px solid var(--as-border);
+  box-shadow: 0 22px 58px rgba(87, 48, 64, 0.12);
 }
 
 .auth-input {
@@ -151,14 +153,14 @@ async function login() {
 }
 
 .auth-action-btn {
-  background: var(--as-black, #111111) !important;
-  border-color: var(--as-black, #111111) !important;
+  background: var(--as-ink, #161113) !important;
+  border-color: var(--as-ink, #161113) !important;
   color: #ffffff !important;
 }
 
 .auth-action-btn:hover:not(:disabled) {
-  background: #000000 !important;
-  border-color: #000000 !important;
+  background: #000 !important;
+  border-color: var(--as-ink, #161113) !important;
   color: #ffffff !important;
 }
 </style>

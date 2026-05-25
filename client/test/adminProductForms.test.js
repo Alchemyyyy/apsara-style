@@ -28,7 +28,7 @@ test('productToForm normalizes nested product metadata', () => {
     base_price: 100,
     discount_price: 80,
     tags: {
-      brand: 'APSARA',
+      brand: 'SABY ORDER',
       style_tags: ['evening', 'silk'],
       seo: {
         meta_title: 'Silk Dress',
@@ -41,7 +41,7 @@ test('productToForm normalizes nested product metadata', () => {
   })
 
   assert.equal(form.discount_percent, 20)
-  assert.equal(form.brand, 'APSARA')
+  assert.equal(form.brand, 'SABY ORDER')
   assert.equal(form.style_tags, 'evening, silk')
   assert.equal(form.images[0].sort_order, 2)
   assert.equal(form.variants[0].stock, 5)

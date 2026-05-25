@@ -7,7 +7,7 @@ const smtp = {
   port: int("SMTP_PORT", 587),
   user: str("SMTP_USER", ""),
   pass: str("SMTP_PASS", ""),
-  from: str("MAIL_FROM", "APSARA STYLE <no-reply@apsara.local>"),
+  from: str("MAIL_FROM", "SABY ORDER <no-reply@sabyorder.local>"),
 };
 
 module.exports = {

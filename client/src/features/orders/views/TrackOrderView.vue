@@ -1,6 +1,6 @@
 <template>
   <div class="container py-5">
-    <div class="brand-wordmark mb-1">APSARA STYLE</div>
+    <BrandLogo size="md" class="mb-1" />
     <h2 class="h4 mb-2">Track Order</h2>
     <div class="text-muted mb-4">Enter the checkout email and order code.</div>
 
@@ -110,6 +110,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { onMounted, ref } from 'vue'
 import { http } from '@/shared/api/http'
 import { useRoute } from 'vue-router'

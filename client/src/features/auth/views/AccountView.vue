@@ -1,6 +1,6 @@
 <template>
   <div class="container py-5">
-    <div class="brand-wordmark mb-1">APSARA STYLE</div>
+    <BrandLogo size="md" class="mb-1" />
     <h2 class="h4 mb-1">My Profile</h2>
     <p class="text-muted mb-4">Update your details and manage shipping addresses.</p>
 
@@ -287,6 +287,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { computed, onMounted, ref } from 'vue'
 import {
   fetchMyAddresses,

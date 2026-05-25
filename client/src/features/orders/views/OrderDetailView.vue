@@ -3,7 +3,7 @@
     <div v-if="order" class="container py-5">
       <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
         <div>
-          <div class="brand-wordmark mb-1">APSARA STYLE</div>
+          <BrandLogo size="md" class="mb-1" />
           <h2 class="order-title mb-1">Order {{ shortOrderId(order.id) }}</h2>
           <div class="text-muted small">
             Code: <span class="fw-semibold">{{ order.order_code }}</span> ·
@@ -225,6 +225,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { http } from '@/shared/api/http'
@@ -471,7 +472,7 @@ onBeforeUnmount(stopPaymentPolling)
 
 <style scoped>
 .order-detail-page {
-  background: linear-gradient(180deg, #fcfcfc 0%, #f6f7f9 100%);
+  background: #ffffff;
 }
 
 .order-title {
@@ -482,7 +483,7 @@ onBeforeUnmount(stopPaymentPolling)
 
 .progress-card,
 .detail-card {
-  border: 1px solid #e7e7ea;
+  border: 1px solid var(--as-border);
   border-radius: 14px;
   background: #fff;
 }
@@ -665,7 +666,7 @@ onBeforeUnmount(stopPaymentPolling)
 .return-modal-card {
   width: min(520px, 100%);
   border-radius: 14px;
-  border: 1px solid #e7e7ea;
+  border: 1px solid var(--as-border);
   background: #fff;
   padding: 1rem;
 }

@@ -1,4 +1,4 @@
-# APSARA STYLE Architecture
+# SABY ORDER Architecture
 
 ## Frontend Structure
 
@@ -153,13 +153,13 @@ SMTP_HOST=smtp.example.com
 SMTP_PORT=587
 SMTP_USER=your-user
 SMTP_PASS=your-pass
-MAIL_FROM="APSARA STYLE <no-reply@apsara.local>"
+MAIL_FROM="SABY ORDER <no-reply@sabyorder.local>"
 ```
 
 3. Create first admin user:
 
 ```bash
-npm --prefix server run create-admin -- --email admin@apsara.com --password 'YourStrongPass123!' --name 'Super Admin' --role super_admin
+npm --prefix server run create-admin -- --email admin@sabyorder.com --password 'YourStrongPass123!' --name 'Super Admin' --role super_admin
 ```
 
 ### 2) Guest shopping flow

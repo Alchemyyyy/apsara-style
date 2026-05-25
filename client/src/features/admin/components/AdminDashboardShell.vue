@@ -3,7 +3,7 @@
     <div class="admin-wrap" :class="{ collapsed: sidebarCollapsed }">
       <aside class="admin-sidebar" :class="{ collapsed: sidebarCollapsed }">
         <div class="sidebar-brand">
-          <div class="brand-wordmark text-white mb-1">APSARA STYLE</div>
+          <BrandLogo size="md" class="mb-1" />
           <div class="small text-white-50">Admin Panel</div>
         </div>
 
@@ -110,6 +110,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { adminHttp } from '@/features/admin/api/adminHttp'
@@ -233,7 +234,7 @@ watch(
 <style scoped>
 .admin-layout {
   min-height: 100vh;
-  background: #f1f5f9;
+  background: #ffffff;
 }
 
 .admin-wrap {
@@ -244,8 +245,8 @@ watch(
 
 .admin-sidebar {
   width: 260px;
-  background: linear-gradient(180deg, #111827 0%, #0b1220 100%);
-  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  background: #161113;
+  border-right: 1px solid rgba(240, 213, 225, 0.16);
   padding: 1.25rem 1rem;
   position: sticky;
   top: 0;
@@ -278,25 +279,21 @@ watch(
 .sidebar-brand {
   margin-bottom: 1.25rem;
   padding: 0.35rem 0.25rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid rgba(240, 213, 225, 0.18);
 }
 
-.admin-sidebar .brand-wordmark {
-  letter-spacing: 0.12em;
-  line-height: 1.25;
+.admin-sidebar :deep(.brand-logo) {
+  max-width: 100%;
 }
 
-.admin-sidebar.collapsed .brand-wordmark {
-  font-size: 0.92rem;
-  letter-spacing: 0.08em;
-  white-space: normal;
-  overflow-wrap: anywhere;
+.admin-sidebar.collapsed :deep(.brand-logo img) {
+  height: 38px;
 }
 
 .sidebar-label {
   font-size: 0.7rem;
   letter-spacing: 0.08em;
-  color: rgba(203, 213, 225, 0.75);
+  color: rgba(253, 232, 241, 0.72);
   font-weight: 700;
   padding: 0.25rem 0.4rem;
 }
@@ -335,7 +332,7 @@ watch(
 .sidebar-sublink {
   border: 0;
   background: transparent;
-  color: #94a3b8;
+  color: #c7aab7;
   text-align: left;
   border-radius: 0.55rem;
   padding: 0.45rem 0.55rem;
@@ -350,28 +347,28 @@ watch(
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.5);
+  border: 1px solid rgba(253, 232, 241, 0.38);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 0.62rem;
-  color: #cbd5e1;
+  color: #f4d5e2;
 }
 
 .sidebar-sublink:hover {
-  background: rgba(148, 163, 184, 0.15);
-  color: #e2e8f0;
+  background: rgba(233, 110, 165, 0.14);
+  color: #fff5f9;
 }
 
 .sidebar-sublink.active {
-  background: rgba(59, 130, 246, 0.16);
-  color: #bfdbfe;
+  background: rgba(233, 110, 165, 0.18);
+  color: #ffd9e8;
 }
 
 .sidebar-link {
   border: 0;
   background: transparent;
-  color: #cbd5e1;
+  color: #f0d5e1;
   text-align: left;
   border-radius: 0.65rem;
   padding: 0.62rem 0.75rem;
@@ -385,12 +382,12 @@ watch(
   width: 22px;
   height: 22px;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.5);
+  border: 1px solid rgba(253, 232, 241, 0.38);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 0.68rem;
-  color: #cbd5e1;
+  color: #f4d5e2;
   flex: 0 0 22px;
 }
 
@@ -404,19 +401,19 @@ watch(
 }
 
 .sidebar-link:hover {
-  background: rgba(148, 163, 184, 0.18);
-  color: #e2e8f0;
+  background: rgba(233, 110, 165, 0.14);
+  color: #fff5f9;
 }
 
 .sidebar-link.active {
-  background: rgba(59, 130, 246, 0.2);
-  color: #f8fafc;
+  background: rgba(233, 110, 165, 0.2);
+  color: #fff;
 }
 
 .sidebar-link.active .nav-icon,
 .sidebar-sublink.active .sub-icon {
-  border-color: rgba(96, 165, 250, 0.85);
-  color: #bfdbfe;
+  border-color: rgba(233, 110, 165, 0.85);
+  color: #ffd9e8;
 }
 
 .admin-main {
@@ -427,8 +424,8 @@ watch(
 
 .admin-topbar {
   background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  border-bottom: 1px solid var(--as-border);
+  box-shadow: 0 10px 28px rgba(87, 48, 64, 0.06);
   padding: 0.9rem 1.25rem;
   display: flex;
   justify-content: space-between;

@@ -88,7 +88,7 @@ onMounted(ensureWishlistLoaded)
 <style scoped>
 .product-card {
   background: #fff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--as-border);
   overflow: hidden;
   transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
@@ -101,14 +101,14 @@ onMounted(ensureWishlistLoaded)
 
 .product-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 18px 38px rgba(87, 48, 64, 0.13);
 }
 
 .product-media {
   position: relative;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  background: #f3f4f6;
+  background: var(--as-blush-soft);
 }
 
 .product-media img {
@@ -150,11 +150,11 @@ onMounted(ensureWishlistLoaded)
   letter-spacing: 0.04em;
   text-transform: capitalize;
   color: #fff;
-  background: rgba(15, 23, 42, 0.62);
+  background: rgba(22, 17, 19, 0.66);
 }
 
 .chip-discount {
-  background: rgba(185, 28, 28, 0.88);
+  background: rgba(200, 77, 131, 0.92);
 }
 
 .product-body {
@@ -193,13 +193,13 @@ onMounted(ensureWishlistLoaded)
 }
 
 .wish-inline-btn.active {
-  color: var(--as-gold, #c6a97a);
+  color: var(--as-pink, #e96ea5);
 }
 
 .product-meta {
   margin-top: 3px;
   font-size: 0.74rem;
-  color: #64748b;
+  color: #7b6871;
   font-weight: 500;
   letter-spacing: 0.03em;
   text-transform: capitalize;
@@ -216,7 +216,7 @@ onMounted(ensureWishlistLoaded)
 .price-now {
   font-size: 1.02rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--as-ink);
 }
 
 .price-old {
@@ -228,8 +228,8 @@ onMounted(ensureWishlistLoaded)
 .price-off {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #b91c1c;
-  background: #fee2e2;
+  color: var(--as-pink-deep);
+  background: var(--as-blush);
   border-radius: 999px;
   padding: 0.16rem 0.45rem;
 }

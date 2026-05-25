@@ -3,7 +3,7 @@
     <div class="container py-5">
       <div class="row g-4 g-lg-5">
         <div class="col-lg-3 col-md-6">
-          <div class="brand-wordmark footer-brand mb-2">APSARA STYLE</div>
+          <BrandLogo size="lg" class="footer-brand mb-2" />
           <p class="footer-muted mb-3">
             Elevated essentials for women, men, and unisex wardrobes.
           </p>
@@ -48,7 +48,7 @@
 
         <div class="col-lg-3 col-md-6">
           <div class="footer-title">Stay Connected</div>
-          <a class="footer-muted small mb-2 footer-mail" href="mailto:support@apsarastyle.com">support@apsarastyle.com</a>
+          <a class="footer-muted small mb-2 footer-mail" href="mailto:support@sabyorder.com">support@sabyorder.com</a>
           <div class="footer-muted small mb-3">+855 12 345 678</div>
 
           <div class="social-row mb-3">
@@ -74,7 +74,7 @@
       </div>
 
       <div class="footer-bottom">
-        <span>© {{ new Date().getFullYear() }} APSARA STYLE</span>
+        <span>© {{ new Date().getFullYear() }} SABY ORDER</span>
         <span class="footer-bottom-divider">•</span>
         <span>Designed for modern fashion commerce.</span>
       </div>
@@ -82,15 +82,19 @@
   </footer>
 </template>
 
+<script setup>
+import BrandLogo from '@/shared/components/common/BrandLogo.vue'
+</script>
+
 <style scoped>
 .app-footer {
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--as-border);
   background: #ffffff;
-  color: #0f172a;
+  color: var(--as-ink);
 }
 
 .footer-brand {
-  color: #111827;
+  color: var(--as-ink);
 }
 
 .footer-title {
@@ -99,11 +103,11 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: #111827;
+  color: var(--as-ink);
 }
 
 .footer-muted {
-  color: #64748b;
+  color: #7b6871;
 }
 
 .footer-links {
@@ -114,12 +118,12 @@
 
 .footer-link {
   font-size: 0.92rem;
-  color: #334155;
+  color: #5d4a52;
   text-decoration: none;
 }
 
 .footer-link:hover {
-  color: #111827;
+  color: var(--as-pink-dark);
 }
 
 .trust-inline {
@@ -129,12 +133,12 @@
 }
 
 .trust-chip {
-  border: 1px solid #dbe2ea;
+  border: 1px solid var(--as-border);
   border-radius: 999px;
   padding: 0.2rem 0.55rem;
   font-size: 0.72rem;
-  color: #334155;
-  background: #f8fafc;
+  color: #6d4055;
+  background: var(--as-blush-soft);
 }
 
 .social-row {
@@ -146,15 +150,16 @@
 .social-link {
   font-size: 0.82rem;
   text-decoration: none;
-  color: #0f172a;
-  border: 1px solid #dbe2ea;
+  color: var(--as-ink);
+  border: 1px solid var(--as-border);
   border-radius: 999px;
   padding: 0.18rem 0.58rem;
   background: #fff;
 }
 
 .social-link:hover {
-  border-color: #111827;
+  border-color: var(--as-pink);
+  color: var(--as-pink-dark);
 }
 .icon-link {
   width: 34px;

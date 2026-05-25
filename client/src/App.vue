@@ -1,7 +1,7 @@
 <template>
   <div v-if="isAuthBootstrapping" class="boot-splash min-vh-100 d-flex align-items-center justify-content-center">
     <div class="text-center">
-      <div class="brand-wordmark mb-2">APSARA STYLE</div>
+      <BrandLogo size="lg" class="mb-2" />
       <div class="spinner-border text-dark" role="status" aria-hidden="true"></div>
       <div class="text-muted mt-3 small">Loading your session...</div>
     </div>
@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import AppNavbar from '@/app/components/layout/AppNavbar.vue'
@@ -39,10 +40,7 @@ const hideShell = computed(() => {
 
 <style scoped>
 .boot-splash {
-  background:
-    radial-gradient(780px 280px at 20% 0%, rgba(198, 169, 122, 0.22), transparent 62%),
-    radial-gradient(760px 260px at 100% 100%, rgba(17, 17, 17, 0.08), transparent 62%),
-    linear-gradient(180deg, #fcfcfc 0%, #f5f5f5 100%);
+  background: #ffffff;
 }
 
 .auth-warning {

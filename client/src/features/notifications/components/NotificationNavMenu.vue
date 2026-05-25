@@ -170,7 +170,7 @@ function noticeKind(type) {
   font-size: 0.58rem;
   font-weight: 700;
   line-height: 1;
-  background: var(--as-gold);
+  background: var(--as-pink);
   color: #111;
   border: 1px solid #fff;
 }
@@ -182,7 +182,7 @@ function noticeKind(type) {
   width: min(92vw, 360px);
   max-height: 430px;
   overflow: auto;
-  border: 1px solid #ece8df;
+  border: 1px solid var(--as-border);
   border-radius: 12px;
   background: #fff;
   box-shadow: 0 18px 34px rgba(17, 17, 17, 0.12);
@@ -209,13 +209,13 @@ function noticeKind(type) {
 .notification-mark-all {
   font-size: 0.76rem;
   font-weight: 600;
-  color: #8a6b3f;
+  color: var(--as-pink-dark);
   text-decoration: none;
   padding: 0;
 }
 
 .notification-mark-all:hover {
-  color: #6f5432;
+  color: var(--as-pink-deep);
 }
 
 .notification-state {
@@ -237,12 +237,12 @@ function noticeKind(type) {
 .notification-view-all {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #8a6b3f;
+  color: var(--as-pink-dark);
   text-decoration: none;
 }
 
 .notification-view-all:hover {
-  color: #6f5432;
+  color: var(--as-pink-deep);
 }
 
 .notification-row {
@@ -259,18 +259,18 @@ function noticeKind(type) {
 }
 
 .notification-row:hover {
-  background: #f8f5ef;
+  background: var(--as-blush-soft);
 }
 
 .notification-row.is-unread {
-  background: #f9f5ec;
+  background: var(--as-blush);
 }
 
 .notification-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--as-gold);
+  background: var(--as-pink);
   margin-top: 0.38rem;
 }
 

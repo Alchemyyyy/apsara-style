@@ -176,10 +176,8 @@ onMounted(load)
 }
 
 .hero-wrap {
-  background:
-    radial-gradient(1200px 420px at 100% -10%, rgba(198, 169, 122, 0.23), rgba(198, 169, 122, 0)),
-    linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
-  border-bottom: 1px solid #e9eaec;
+  background: #ffffff;
+  border-bottom: 1px solid var(--as-border);
 }
 
 .hero-copy {
@@ -190,7 +188,7 @@ onMounted(load)
   font-size: 0.77rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #6b7280;
+  color: var(--as-pink-dark);
   font-weight: 650;
 }
 
@@ -201,11 +199,12 @@ onMounted(load)
   line-height: 1.02;
   font-weight: 700;
   letter-spacing: -0.02em;
+  color: var(--as-ink);
 }
 
 .hero-subtitle {
   margin: 0;
-  color: #4b5563;
+  color: #6d5c64;
   font-size: 1rem;
   line-height: 1.7;
 }
@@ -229,26 +228,26 @@ onMounted(load)
 }
 
 .hero-btn-women {
-  background: #c6a97a;
+  background: var(--as-pink);
   color: #fff;
-  border: 1px solid #c6a97a;
-  box-shadow: 0 10px 24px rgba(198, 169, 122, 0.35);
+  border: 1px solid var(--as-pink);
+  box-shadow: 0 12px 28px rgba(233, 110, 165, 0.32);
 }
 
 .hero-btn-women:hover {
-  background: #b99b68;
-  border-color: #b99b68;
+  background: var(--as-pink-dark);
+  border-color: var(--as-pink-dark);
   color: #fff;
 }
 
 .hero-btn-men {
   background: #fff;
-  color: #0f172a;
-  border: 1px solid #0f172a;
+  color: var(--as-ink);
+  border: 1px solid var(--as-ink);
 }
 
 .hero-btn-men:hover {
-  background: #0f172a;
+  background: var(--as-ink);
   color: #fff;
 }
 
@@ -265,7 +264,7 @@ onMounted(load)
   height: 100%;
   object-fit: cover;
   border-radius: 18px;
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 18px 38px rgba(87, 48, 64, 0.16);
 }
 
 .hero-side-image {
@@ -275,9 +274,9 @@ onMounted(load)
 .trust-strip {
   margin-top: 1.15rem;
   margin-bottom: 0.35rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--as-border);
   border-radius: 14px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.88);
   padding: 0.9rem 1rem;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -293,12 +292,12 @@ onMounted(load)
 .trust-title {
   font-size: 0.84rem;
   font-weight: 650;
-  color: #111827;
+  color: var(--as-ink);
 }
 
 .trust-sub {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #7b6871;
 }
 
 .section-head {
@@ -318,7 +317,7 @@ onMounted(load)
 .section-link {
   font-size: 0.85rem;
   text-decoration: none;
-  color: #111827;
+  color: var(--as-pink-dark);
   font-weight: 600;
 }
 
@@ -337,7 +336,7 @@ onMounted(load)
 
 .audience-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.22);
+  box-shadow: 0 18px 34px rgba(87, 48, 64, 0.24);
 }
 
 .audience-women {
@@ -378,17 +377,18 @@ onMounted(load)
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--as-border);
   border-radius: 999px;
   padding: 0.45rem 0.72rem;
   font-size: 0.8rem;
-  color: #0f172a;
+  color: var(--as-ink);
   text-decoration: none;
   background: #fff;
 }
 
 .type-chip:hover {
-  border-color: #111827;
+  border-color: var(--as-pink);
+  color: var(--as-pink-dark);
 }
 
 .type-count {
@@ -396,8 +396,8 @@ onMounted(load)
   min-width: 1.35rem;
   text-align: center;
   padding: 0.1rem 0.38rem;
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--as-blush-soft);
+  color: var(--as-pink-deep);
   font-size: 0.72rem;
   font-weight: 700;
 }

@@ -1,4 +1,4 @@
-# APSARA STYLE SQL
+# SABY ORDER SQL
 
 This folder separates fresh-database setup from incremental migrations.
 

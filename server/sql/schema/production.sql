@@ -1,7 +1,7 @@
--- Production schema for fresh APSARA STYLE PostgreSQL databases
+-- Production schema for fresh SABY ORDER PostgreSQL databases
 -- Safe to run multiple times: uses IF NOT EXISTS where possible.
 
--- APSARA STYLE - PostgreSQL Schema
+-- SABY ORDER - PostgreSQL Schema
 -- Enable UUID generation
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 

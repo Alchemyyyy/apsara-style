@@ -1,5 +1,5 @@
 """
-APSARA STYLE - Embed Products (FREE local embeddings)
+SABY ORDER - Embed Products (FREE local embeddings)
 Reads products + tags, generates embeddings, stores into product_embeddings.vector (real[])
 
 Run:

@@ -288,8 +288,8 @@ onUnmounted(() => {
 }
 
 .chip {
-  border: 1px solid #eadfce;
-  background: #fbf7ef;
+  border: 1px solid var(--as-border);
+  background: var(--as-blush-soft);
   color: #3b3b3b;
   border-radius: 999px;
   padding: 0.24rem 0.62rem;
@@ -313,7 +313,7 @@ onUnmounted(() => {
   grid-template-columns: 1.2fr 0.8fr 1fr 1fr auto auto;
   gap: 0.5rem;
   padding: 0.7rem;
-  border: 1px solid #ece4d7;
+  border: 1px solid var(--as-border);
   border-radius: 12px;
   background: #fff;
 }
@@ -324,7 +324,7 @@ onUnmounted(() => {
 }
 
 .notification-empty {
-  border: 1px solid #e9e3d9;
+  border: 1px solid var(--as-border);
   border-radius: 10px;
   background: #fff;
   color: #666;
@@ -333,7 +333,7 @@ onUnmounted(() => {
 
 .notification-card {
   width: 100%;
-  border: 1px solid #e9e3d9;
+  border: 1px solid var(--as-border);
   border-radius: 12px;
   background: #fff;
   display: grid;
@@ -345,18 +345,18 @@ onUnmounted(() => {
 }
 
 .notification-card.is-unread {
-  background: #fbf7ef;
+  background: var(--as-blush-soft);
 }
 
 .notification-card:hover {
-  border-color: #d9ccba;
+  border-color: var(--as-pink);
 }
 
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--as-gold, #c6a97a);
+  background: var(--as-pink, #e96ea5);
   margin-top: 0.4rem;
 }
 

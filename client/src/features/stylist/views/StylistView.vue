@@ -1,9 +1,9 @@
 <template>
   <div class="container py-5">
-    <div class="brand-wordmark mb-1">APSARA STYLE</div>
+    <BrandLogo size="md" class="mb-1" />
     <h2 class="h4">AI Styling Assistant</h2>
     <p class="text-muted mb-4">
-      Describe what you want, and APSARA will curate a full outfit from the catalog.
+      Describe what you want, and Saby Order will curate a full outfit from the catalog.
     </p>
 
     <div class="row g-4">
@@ -131,6 +131,7 @@
 </template>
 
 <script setup>
+import BrandLogo from "@/shared/components/common/BrandLogo.vue"
 import { ref } from 'vue'
 import { http } from '@/shared/api/http'
 import { computed } from 'vue'

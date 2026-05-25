@@ -17,9 +17,9 @@ const swaggerOptions = {
   swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      title: "APSARA STYLE API",
+      title: "SABY ORDER API",
       version: "1.0.0",
-      description: "API Documentation for Apsara Style server",
+      description: "API Documentation for Saby Order server",
     },
     servers: [
       {
@@ -41,7 +41,7 @@ const uploadsDir = path.resolve(__dirname, "../uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
 app.use("/uploads", express.static(uploadsDir));
 
-app.get("/", (req, res) => res.json({ message: "APSARA STYLE API running" }));
+app.get("/", (req, res) => res.json({ message: "SABY ORDER API running" }));
 
 // add session middleware BEFORE cart routes
 app.use(session);

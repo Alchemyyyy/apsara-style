@@ -3,7 +3,9 @@ SABY ORDER - Embed Products (FREE local embeddings)
 Reads products + tags, generates embeddings, stores into product_embeddings.vector (real[])
 
 Run:
+  python3 -m venv .venv
   source .venv/bin/activate
+  python -m pip install -r scripts/requirements.txt
   python scripts/embed_products.py
 """
 

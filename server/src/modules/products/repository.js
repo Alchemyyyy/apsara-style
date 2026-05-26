@@ -51,7 +51,7 @@ const findProductDetail = async (id) => {
       c.slug AS category_slug
     FROM products p
     LEFT JOIN categories c ON c.id = p.category_id
-    WHERE p.id = $1 AND p.is_active = true
+    WHERE p.id = $1 AND p.is_active = true AND p.gender IN ('women', 'men')
     `,
     [id]
   );
@@ -105,7 +105,7 @@ const listEmbeddingCandidates = async (productId) => {
     FROM products p
     LEFT JOIN categories c ON c.id = p.category_id
     JOIN product_embeddings pe ON pe.product_id = p.id
-    WHERE p.is_active = true AND p.id <> $1
+    WHERE p.is_active = true AND p.gender IN ('women', 'men') AND p.id <> $1
     `,
     [productId]
   );
@@ -122,8 +122,7 @@ const listCatalogMeta = async () => {
       c.sort_order,
       COUNT(p.id) FILTER (WHERE p.is_active = true AND p.gender = 'women')::int AS women_count,
       COUNT(p.id) FILTER (WHERE p.is_active = true AND p.gender = 'men')::int AS men_count,
-      COUNT(p.id) FILTER (WHERE p.is_active = true AND p.gender = 'unisex')::int AS unisex_count,
-      COUNT(p.id) FILTER (WHERE p.is_active = true)::int AS total_count
+      COUNT(p.id) FILTER (WHERE p.is_active = true AND p.gender IN ('women', 'men'))::int AS total_count
     FROM categories c
     LEFT JOIN products p ON p.category_id = c.id
     WHERE c.is_active = true

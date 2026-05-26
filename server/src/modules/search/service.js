@@ -1,6 +1,7 @@
 const { cosine } = require("../../utils/similarity");
 const { embedQueryPython } = require("../../services/embedQuery.service");
 const searchRepo = require("./repository");
+const PUBLIC_GENDERS = ["women", "men"];
 
 function toInt(v, def) {
   const n = Number(v);
@@ -43,7 +44,10 @@ const search = async (queryParams) => {
   const offset = (page - 1) * limit;
 
   // Filters
-  const gender = queryParams.gender || null;
+  const gender = queryParams.gender ? String(queryParams.gender).trim().toLowerCase() : null;
+  if (gender && !PUBLIC_GENDERS.includes(gender)) {
+    return { items: [], meta: { page: 1, limit: 12, total: 0, totalPages: 0 } };
+  }
   const category = queryParams.category || null; // category slug (women-dresses)
   const minPrice = queryParams.minPrice ? Number(queryParams.minPrice) : null;
   const maxPrice = queryParams.maxPrice ? Number(queryParams.maxPrice) : null;
@@ -53,7 +57,7 @@ const search = async (queryParams) => {
 
   // 2) Load candidate products (with embeddings) under filters
   const params = [];
-  const filters = ["p.is_active = true"];
+  const filters = ["p.is_active = true", "p.gender IN ('women', 'men')"];
   let i = 1;
 
   if (gender) {

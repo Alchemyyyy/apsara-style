@@ -16,7 +16,7 @@ const findProductCardsByIds = async (ids) => {
       ) AS hero_image
     FROM products p
     LEFT JOIN categories c ON c.id = p.category_id
-    WHERE p.id = ANY($1::uuid[]) AND p.is_active = true
+    WHERE p.id = ANY($1::uuid[]) AND p.is_active = true AND p.gender IN ('women', 'men')
     `,
     [ids]
   );
@@ -53,7 +53,7 @@ const listAllActiveVectors = async () => {
     SELECT p.id, pe.vector
     FROM products p
     JOIN product_embeddings pe ON pe.product_id = p.id
-    WHERE p.is_active = true
+    WHERE p.is_active = true AND p.gender IN ('women', 'men')
     `
   );
   return res.rows;
@@ -73,7 +73,10 @@ const findTrendingScores = async (limit) => {
         END
       )::int AS score
     FROM events e
+    JOIN products p ON p.id = e.product_id
     WHERE e.product_id IS NOT NULL
+      AND p.is_active = true
+      AND p.gender IN ('women', 'men')
       AND e.type IN ('view_product','add_to_cart','purchase')
     GROUP BY e.product_id
     ORDER BY score DESC
@@ -89,7 +92,7 @@ const findNewestProductIds = async (limit) => {
     `
     SELECT id
     FROM products
-    WHERE is_active = true
+    WHERE is_active = true AND gender IN ('women', 'men')
     ORDER BY created_at DESC
     LIMIT $1
     `,

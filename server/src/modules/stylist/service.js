@@ -1,22 +1,46 @@
 const { cosine } = require("../../utils/similarity");
 const { embedQueryPython } = require("../../services/embedQuery.service");
+const { appError } = require("../../shared/errors");
 const stylistRepo = require("./repository");
+
+const PUBLIC_GENDERS = ["women", "men"];
 
 const RULES = {
   women: {
-    top: ["women-tops"],
-    bottom: ["women-pants", "women-skirts"],
-    shoes: ["women-shoes"],
-    outerwear: ["women-outerwear", "women-blazers"],
-    dress: ["women-dresses"],
+    top: ["tops", "activewear", "women-tops"],
+    bottom: ["pants", "skirts", "jeans", "activewear", "women-pants", "women-skirts"],
+    shoes: ["shoes", "women-shoes"],
+    outerwear: ["outerwear", "blazers", "women-outerwear", "women-blazers"],
+    dress: ["dresses", "women-dresses"],
   },
   men: {
-    top: ["men-shirts", "men-t-shirts"],
-    bottom: ["men-pants", "men-jeans"],
-    shoes: ["men-shoes"],
-    outerwear: ["men-outerwear", "men-blazers"],
+    top: ["shirts", "t-shirts", "tops", "activewear", "men-shirts", "men-t-shirts"],
+    bottom: ["pants", "jeans", "activewear", "men-pants", "men-jeans"],
+    shoes: ["shoes", "men-shoes"],
+    outerwear: ["outerwear", "blazers", "men-outerwear", "men-blazers"],
   },
 };
+
+function normalizePrompt(prompt) {
+  const text = String(prompt || "").trim();
+  if (text.length < 3) throw appError("prompt must be at least 3 characters", 400);
+  if (text.length > 500) throw appError("prompt must be <= 500 characters", 400);
+  return text;
+}
+
+function normalizeGender(gender) {
+  const safe = String(gender || "women").trim().toLowerCase();
+  if (!PUBLIC_GENDERS.includes(safe)) throw appError("gender must be one of women|men", 400);
+  return safe;
+}
+
+function normalizeBudgetMax(value) {
+  if (value == null || value === "") return null;
+  const budget = Number(value);
+  if (!Number.isFinite(budget)) throw appError("budgetMax must be a number", 400);
+  if (budget < 0) throw appError("budgetMax must be >= 0", 400);
+  return budget;
+}
 
 function pickBest(scored, excludeIds, limit = 1) {
   const out = [];
@@ -32,18 +56,36 @@ function pickBest(scored, excludeIds, limit = 1) {
 function tagMatchBoost(product, { occasion, style }) {
   let boost = 0;
   const tags = product.tags || {};
+  const hasTag = (key, value) => {
+    if (!value || !Array.isArray(tags[key])) return false;
+    const wanted = String(value).trim().toLowerCase();
+    return tags[key].some((tag) => String(tag).trim().toLowerCase() === wanted);
+  };
 
-  if (occasion && Array.isArray(tags.occasion) && tags.occasion.includes(occasion)) boost += 0.08;
-  if (style && Array.isArray(tags.style) && tags.style.includes(style)) boost += 0.08;
+  if (hasTag("occasion", occasion)) boost += 0.08;
+  if (hasTag("style", style)) boost += 0.08;
 
   return boost;
 }
 
 const buildOutfit = async ({ sessionId, prompt, gender, occasion, style, budgetMax, k }) => {
+  const promptText = normalizePrompt(prompt);
+  const g = normalizeGender(gender);
+  const maxBudget = normalizeBudgetMax(budgetMax);
   const K = Math.max(1, Math.min(Number(k || 3), 5)); // 1..5 variations
-  const qVec = await embedQueryPython(prompt);
+  const qVec = await embedQueryPython(promptText);
 
-  const candidates = await stylistRepo.loadCandidates({ gender, budgetMax });
+  let budgetRelaxed = false;
+  let candidates = await stylistRepo.loadCandidates({ gender: g, budgetMax: maxBudget });
+
+  if (!candidates.length && maxBudget != null) {
+    candidates = await stylistRepo.loadCandidates({ gender: g, budgetMax: null });
+    budgetRelaxed = true;
+  }
+
+  if (!candidates.length) {
+    throw appError("No active products are available for this audience", 404);
+  }
 
   // Score candidates with semantic similarity + tag boost
   const scoredAll = candidates
@@ -54,12 +96,11 @@ const buildOutfit = async ({ sessionId, prompt, gender, occasion, style, budgetM
     })
     .sort((a, b) => b._score - a._score);
 
-  const g = gender || "women";
   const rules = RULES[g] || RULES.women;
 
   const wantsDress =
     g === "women" &&
-    (prompt.toLowerCase().includes("dress") ||
+    (promptText.toLowerCase().includes("dress") ||
       (occasion && ["evening", "party", "wedding"].includes(occasion)));
 
   const clean = (p) => {
@@ -94,15 +135,28 @@ const buildOutfit = async ({ sessionId, prompt, gender, occasion, style, budgetM
       outfit.outerwear = pickFromCategoriesWithOffset(rules.outerwear || [], exclude, baseOffset + 6, 1)[0] || null;
     }
 
+    const cleanOutfit = {
+      dress: clean(outfit.dress),
+      top: clean(outfit.top),
+      bottom: clean(outfit.bottom),
+      shoes: clean(outfit.shoes),
+      outerwear: clean(outfit.outerwear),
+    };
+
+    const requiredSlots = cleanOutfit.dress ? ["dress", "shoes"] : ["top", "bottom", "shoes"];
+    const missingSlots = requiredSlots.filter((slot) => !cleanOutfit[slot]);
+    const items = Object.values(cleanOutfit).filter(Boolean);
+    const estimatedTotal = items.reduce((sum, item) => {
+      const price = Number(item.discount_price || item.base_price || 0);
+      return sum + (Number.isFinite(price) ? price : 0);
+    }, 0);
+
     return {
       label: `Look ${variationIndex + 1}`,
-      outfit: {
-        dress: clean(outfit.dress),
-        top: clean(outfit.top),
-        bottom: clean(outfit.bottom),
-        shoes: clean(outfit.shoes),
-        outerwear: clean(outfit.outerwear),
-      },
+      outfit: cleanOutfit,
+      estimatedTotal: Number(estimatedTotal.toFixed(2)),
+      missingSlots,
+      isComplete: missingSlots.length === 0,
     };
   }
 
@@ -112,16 +166,18 @@ const buildOutfit = async ({ sessionId, prompt, gender, occasion, style, budgetM
   // Track stylist_request event
   await stylistRepo.createStylistRequestEvent({
     sessionId,
-    prompt,
-    meta: { gender: g, occasion, style, budgetMax, k: K },
+    prompt: promptText,
+    meta: { gender: g, occasion, style, budgetMax: maxBudget, budgetRelaxed, k: K },
   });
 
   return {
-    prompt,
+    prompt: promptText,
     gender: g,
     occasion,
     style,
-    budgetMax,
+    budgetMax: maxBudget,
+    budgetRelaxed,
+    candidateCount: candidates.length,
     looks,
   };
 };

@@ -4,7 +4,7 @@
       <img :src="product.hero_image || fallback" :alt="product.title" />
       <div class="media-top">
         <span v-if="hasDiscount" class="chip chip-discount">Sale</span>
-        <span v-else class="chip">{{ product.gender || 'unisex' }}</span>
+        <span v-else class="chip">{{ product.gender || 'Product' }}</span>
       </div>
     </div>
 

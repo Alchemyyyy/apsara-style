@@ -2,7 +2,7 @@ const db = require("../../db");
 
 const loadCandidates = async ({ gender, budgetMax }) => {
   const params = [];
-  const filters = ["p.is_active = true"];
+  const filters = ["p.is_active = true", "p.gender IN ('women', 'men')"];
   let i = 1;
 
   if (gender) {

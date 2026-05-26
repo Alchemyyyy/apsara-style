@@ -79,6 +79,8 @@ const findCartItemsWithReservation = async ({ cartId, sessionId }, client) => {
       AND ir.session_id = $2
       AND ir.expires_at > now()
     WHERE ci.cart_id = $1
+      AND p.is_active = true
+      AND p.gender IN ('women', 'men')
     ORDER BY ci.created_at DESC
     `,
     [cartId, sessionId]
@@ -88,7 +90,18 @@ const findCartItemsWithReservation = async ({ cartId, sessionId }, client) => {
 
 const lockVariantById = async (variantId, client) => {
   const runner = withRunner(client);
-  const res = await runner.query(`SELECT id, stock FROM product_variants WHERE id = $1 FOR UPDATE`, [variantId]);
+  const res = await runner.query(
+    `
+    SELECT pv.id, pv.stock
+    FROM product_variants pv
+    JOIN products p ON p.id = pv.product_id
+    WHERE pv.id = $1
+      AND p.is_active = true
+      AND p.gender IN ('women', 'men')
+    FOR UPDATE OF pv
+    `,
+    [variantId]
+  );
   return res.rows[0] || null;
 };
 
@@ -230,6 +243,8 @@ const listSimpleCartItems = async (cartId, client) => {
     JOIN product_variants pv ON pv.id = ci.variant_id
     JOIN products p ON p.id = pv.product_id
     WHERE ci.cart_id = $1
+      AND p.is_active = true
+      AND p.gender IN ('women', 'men')
     `,
     [cartId]
   );

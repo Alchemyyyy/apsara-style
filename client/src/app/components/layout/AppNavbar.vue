@@ -220,11 +220,10 @@ let closeMenuTimer = null
 let notificationPollTimer = null
 let unsubscribeNotificationStream = null
 const notificationStreamConnected = ref(false)
-const genders = ['women', 'men', 'unisex']
+const genders = ['women', 'men']
 const desktopNavItems = [
-  { key: 'men', label: "Men's", gender: 'men', to: { name: 'products', params: { gender: 'men' } } },
   { key: 'women', label: "Women's", gender: 'women', to: { name: 'products', params: { gender: 'women' } } },
-  { key: 'unisex', label: 'Unisex', gender: 'unisex', to: { name: 'products', params: { gender: 'unisex' } } },
+  { key: 'men', label: "Men's", gender: 'men', to: { name: 'products', params: { gender: 'men' } } },
   { key: 'new-arrivals', label: 'New Arrivals', to: { name: 'search', query: { q: 'new arrivals' } } },
   { key: 'sale', label: 'Sale', to: { name: 'search', query: { q: 'sale' } } },
   { key: 'stylist', label: 'Stylist', to: { name: 'stylist' } },
@@ -281,7 +280,6 @@ function dropdownColumnsFor(item) {
       { label: 'All Sale Items', to: { name: 'search', query: { q: 'sale' } } },
       { label: 'Men Sale', to: { name: 'search', query: { q: 'men sale' } } },
       { label: 'Women Sale', to: { name: 'search', query: { q: 'women sale' } } },
-      { label: 'Unisex Sale', to: { name: 'search', query: { q: 'unisex sale' } } },
     ]]
   }
 

@@ -17,6 +17,8 @@ const listBySession = async (sessionId) => {
     JOIN products p ON p.id = w.product_id
     LEFT JOIN categories c ON c.id = p.category_id
     WHERE w.session_id = $1
+      AND p.is_active = true
+      AND p.gender IN ('women', 'men')
     ORDER BY w.created_at DESC
     `,
     [sessionId]
@@ -28,7 +30,11 @@ const addBySession = async ({ sessionId, productId }) => {
   await db.query(
     `
     INSERT INTO wishlists (session_id, product_id)
-    VALUES ($1, $2)
+    SELECT $1, p.id
+    FROM products p
+    WHERE p.id = $2
+      AND p.is_active = true
+      AND p.gender IN ('women', 'men')
     ON CONFLICT DO NOTHING
     `,
     [sessionId, productId]

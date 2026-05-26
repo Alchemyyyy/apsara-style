@@ -5,7 +5,7 @@
         <div class="col-lg-3 col-md-6">
           <BrandLogo size="lg" class="footer-brand mb-2" />
           <p class="footer-muted mb-3">
-            Elevated essentials for women, men, and unisex wardrobes.
+            Elevated essentials for women and men wardrobes.
           </p>
           <div class="trust-inline">
             <span class="trust-chip">Secure Checkout</span>
@@ -19,7 +19,6 @@
           <div class="footer-links">
             <RouterLink class="footer-link" :to="{ name: 'products', params: { gender: 'women' } }">Women</RouterLink>
             <RouterLink class="footer-link" :to="{ name: 'products', params: { gender: 'men' } }">Men</RouterLink>
-            <RouterLink class="footer-link" :to="{ name: 'products', params: { gender: 'unisex' } }">Unisex</RouterLink>
             <RouterLink class="footer-link" :to="{ name: 'search', query: { q: 'new arrivals' } }">New Arrivals</RouterLink>
             <RouterLink class="footer-link" :to="{ name: 'search', query: { q: 'sale' } }">Sale</RouterLink>
           </div>

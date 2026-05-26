@@ -8,7 +8,7 @@
               <div class="eyebrow">New Season Edit</div>
               <h1 class="hero-title">Build Your Signature Look</h1>
               <p class="hero-subtitle">
-                Minimal, elevated, and ready for everyday wear. Discover curated drops for women, men, and unisex wardrobes.
+                Minimal, elevated, and ready for everyday wear. Discover curated drops for women and men wardrobes.
               </p>
               <div class="hero-cta">
                 <RouterLink class="btn hero-btn hero-btn-women" :to="{ name: 'products', params: { gender: 'women' } }">Shop Women</RouterLink>
@@ -60,21 +60,15 @@
         <RouterLink class="section-link" :to="{ name: 'products', params: { gender: 'women' } }">View all</RouterLink>
       </div>
       <div class="row g-3">
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6">
           <RouterLink class="audience-card audience-women" :to="{ name: 'products', params: { gender: 'women' } }">
             <span class="audience-label">Women</span>
             <span class="audience-action">Explore collection</span>
           </RouterLink>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6">
           <RouterLink class="audience-card audience-men" :to="{ name: 'products', params: { gender: 'men' } }">
             <span class="audience-label">Men</span>
-            <span class="audience-action">Explore collection</span>
-          </RouterLink>
-        </div>
-        <div class="col-12 col-md-4">
-          <RouterLink class="audience-card audience-unisex" :to="{ name: 'products', params: { gender: 'unisex' } }">
-            <span class="audience-label">Unisex</span>
             <span class="audience-action">Explore collection</span>
           </RouterLink>
         </div>
@@ -90,7 +84,7 @@
           v-for="type in topTypes"
           :key="type.slug"
           class="type-chip"
-          :to="{ name: 'products', params: { gender: 'unisex' }, query: { category: type.slug } }"
+          :to="{ name: 'products', params: { gender: type.gender }, query: { category: type.slug } }"
         >
           {{ type.name }}
           <span class="type-count">{{ type.total }}</span>
@@ -136,11 +130,17 @@ const topTypes = computed(() =>
     .map((c) => ({
       slug: c.slug,
       name: c.name,
-      total: Number(c?.counts?.total || 0),
+      women: Number(c?.counts?.women || 0),
+      men: Number(c?.counts?.men || 0),
+      total: Number(c?.counts?.women || 0) + Number(c?.counts?.men || 0),
     }))
     .filter((c) => c.total > 0)
     .sort((a, b) => b.total - a.total)
     .slice(0, 8)
+    .map((c) => ({
+      ...c,
+      gender: c.women >= c.men ? 'women' : 'men',
+    }))
 )
 
 async function load() {
@@ -349,12 +349,6 @@ onMounted(load)
   background:
     linear-gradient(180deg, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.54)),
     url('https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1000&q=80') center/cover no-repeat;
-}
-
-.audience-unisex {
-  background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.54)),
-    url('https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1000&q=80') center/cover no-repeat;
 }
 
 .audience-label {

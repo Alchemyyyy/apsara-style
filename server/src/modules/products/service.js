@@ -1,7 +1,7 @@
 const productRepo = require("./repository");
 const { cosine } = require("../../utils/similarity");
 
-const VALID_GENDERS = ["men", "women", "unisex"];
+const PUBLIC_GENDERS = ["men", "women"];
 
 function toInt(v, def) {
   const n = Number(v);
@@ -11,7 +11,11 @@ function toInt(v, def) {
 function normalizeGender(value) {
   const safe = String(value || "").trim().toLowerCase();
   if (!safe) return "";
-  if (!VALID_GENDERS.includes(safe)) throw new Error("gender must be one of men|women|unisex");
+  if (!PUBLIC_GENDERS.includes(safe)) {
+    const err = new Error("gender must be one of men|women");
+    err.status = 400;
+    throw err;
+  }
   return safe;
 }
 
@@ -30,6 +34,7 @@ const list = async (q) => {
   let i = 1;
 
   filters.push(`p.is_active = true`);
+  filters.push(`p.gender IN ('women', 'men')`);
   filters.push(`(c.id IS NULL OR c.is_active = true)`);
 
   if (q.gender) {
@@ -151,7 +156,7 @@ const similar = async (productId, q) => {
 const meta = async () => {
   const categories = await productRepo.listCatalogMeta();
   return {
-    genders: VALID_GENDERS,
+    genders: PUBLIC_GENDERS,
     categories: categories.map((c) => ({
       id: c.id,
       name: c.name,
@@ -160,7 +165,6 @@ const meta = async () => {
       counts: {
         women: Number(c.women_count || 0),
         men: Number(c.men_count || 0),
-        unisex: Number(c.unisex_count || 0),
         total: Number(c.total_count || 0),
       },
     })),

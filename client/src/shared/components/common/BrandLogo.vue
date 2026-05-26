@@ -16,7 +16,7 @@ defineProps({
 
 <style scoped>
 .brand-logo {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   line-height: 0;

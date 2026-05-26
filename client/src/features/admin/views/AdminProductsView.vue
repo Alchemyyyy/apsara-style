@@ -122,7 +122,6 @@
               <select class="form-select" v-model="productForm.gender" required>
                 <option value="women">Women</option>
                 <option value="men">Men</option>
-                <option value="unisex">Unisex</option>
               </select>
             </div>
             <div class="col-md-4">
@@ -299,7 +298,6 @@
               <option value="">All audience</option>
               <option value="women">Women</option>
               <option value="men">Men</option>
-              <option value="unisex">Unisex</option>
             </select>
           </div>
           <div class="col-md-3">

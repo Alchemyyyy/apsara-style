@@ -179,8 +179,8 @@
             </div>
           </li>
 
-          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'search', query: { q: 'new arrivals' } }">New Arrivals</RouterLink></li>
-          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'search', query: { q: 'sale' } }">Sale</RouterLink></li>
+          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'catalog', query: { sort: 'newest' } }">New Arrivals</RouterLink></li>
+          <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'catalog', query: { discount: '1', sort: 'discount_desc' } }">Sale</RouterLink></li>
           <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'stylist' }">Stylist</RouterLink></li>
           <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'trackOrder' }">Track Order</RouterLink></li>
           <li class="nav-item"><RouterLink class="nav-link" :to="{ name: 'notifications' }">Notifications</RouterLink></li>
@@ -224,8 +224,8 @@ const genders = ['women', 'men']
 const desktopNavItems = [
   { key: 'women', label: "Women's", gender: 'women', to: { name: 'products', params: { gender: 'women' } } },
   { key: 'men', label: "Men's", gender: 'men', to: { name: 'products', params: { gender: 'men' } } },
-  { key: 'new-arrivals', label: 'New Arrivals', to: { name: 'search', query: { q: 'new arrivals' } } },
-  { key: 'sale', label: 'Sale', to: { name: 'search', query: { q: 'sale' } } },
+  { key: 'new-arrivals', label: 'New Arrivals', to: { name: 'catalog', query: { sort: 'newest' } } },
+  { key: 'sale', label: 'Sale', to: { name: 'catalog', query: { discount: '1', sort: 'discount_desc' } } },
   { key: 'stylist', label: 'Stylist', to: { name: 'stylist' } },
 ]
 const displayName = computed(() => String(userProfile.value?.fullName || userProfile.value?.email || 'Customer'))
@@ -268,18 +268,20 @@ function dropdownColumnsFor(item) {
 
   if (item.key === 'new-arrivals') {
     return [[
-      { label: 'Just In', to: { name: 'search', query: { q: 'new arrivals' } } },
+      { label: 'Just In', to: { name: 'catalog', query: { sort: 'newest' } } },
+      { label: 'Women New Arrivals', to: { name: 'products', params: { gender: 'women' }, query: { sort: 'newest' } } },
+      { label: 'Men New Arrivals', to: { name: 'products', params: { gender: 'men' }, query: { sort: 'newest' } } },
       { label: 'Trending Now', to: { name: 'search', query: { q: 'trending' } } },
       { label: 'Best Sellers', to: { name: 'search', query: { q: 'best seller' } } },
-      { label: 'New Dresses', to: { name: 'search', query: { q: 'new dresses' } } },
+      { label: 'New Dresses', to: { name: 'products', params: { gender: 'women' }, query: { category: 'dresses', sort: 'newest' } } },
     ]]
   }
 
   if (item.key === 'sale') {
     return [[
-      { label: 'All Sale Items', to: { name: 'search', query: { q: 'sale' } } },
-      { label: 'Men Sale', to: { name: 'search', query: { q: 'men sale' } } },
-      { label: 'Women Sale', to: { name: 'search', query: { q: 'women sale' } } },
+      { label: 'All Sale Items', to: { name: 'catalog', query: { discount: '1', sort: 'discount_desc' } } },
+      { label: 'Men Sale', to: { name: 'products', params: { gender: 'men' }, query: { discount: '1', sort: 'discount_desc' } } },
+      { label: 'Women Sale', to: { name: 'products', params: { gender: 'women' }, query: { discount: '1', sort: 'discount_desc' } } },
     ]]
   }
 

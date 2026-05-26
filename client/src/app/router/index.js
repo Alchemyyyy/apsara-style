@@ -33,6 +33,7 @@ function pickAdminHomeByRoles(roles) {
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
+  { path: '/shop', name: 'catalog', component: ProductsView, props: { gender: '' } },
   { path: '/shop/unisex', redirect: { name: 'products', params: { gender: 'women' } } },
   { path: '/shop/:gender(men|women)', name: 'products', component: ProductsView, props: true },
   { path: '/product/:id', name: 'productDetail', component: ProductDetailView, props: true },

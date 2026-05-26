@@ -19,8 +19,8 @@
           <div class="footer-links">
             <RouterLink class="footer-link" :to="{ name: 'products', params: { gender: 'women' } }">Women</RouterLink>
             <RouterLink class="footer-link" :to="{ name: 'products', params: { gender: 'men' } }">Men</RouterLink>
-            <RouterLink class="footer-link" :to="{ name: 'search', query: { q: 'new arrivals' } }">New Arrivals</RouterLink>
-            <RouterLink class="footer-link" :to="{ name: 'search', query: { q: 'sale' } }">Sale</RouterLink>
+            <RouterLink class="footer-link" :to="{ name: 'catalog', query: { sort: 'newest' } }">New Arrivals</RouterLink>
+            <RouterLink class="footer-link" :to="{ name: 'catalog', query: { discount: '1', sort: 'discount_desc' } }">Sale</RouterLink>
           </div>
         </div>
 

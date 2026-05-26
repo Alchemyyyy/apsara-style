@@ -4,7 +4,7 @@
       <section class="catalog-head">
         <BrandLogo size="md" class="mb-1" />
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-2">
-          <h1 class="collection-title text-capitalize mb-0">{{ gender }} Collection</h1>
+          <h1 class="collection-title mb-0">{{ collectionTitle }}</h1>
           <button class="btn btn-dark btn-sm d-lg-none" @click="openFilters">
             Filter & Sort
             <span v-if="activeFilterCount > 0" class="filter-count">{{ activeFilterCount }}</span>
@@ -236,7 +236,7 @@ import ProductCard from '@/features/products/components/ProductCard.vue'
 import AppPagination from '@/shared/components/common/AppPagination.vue'
 
 const props = defineProps({
-  gender: { type: String, required: true },
+  gender: { type: String, default: '' },
 })
 
 const route = useRoute()
@@ -266,6 +266,13 @@ const productColClass = computed(() => 'col-6 col-xl-4')
 const perPageLimit = computed(() => (isMobile.value ? 12 : 24))
 const enableLoadMore = computed(() => isMobile.value)
 const canLoadMore = computed(() => page.value < Number(meta.value?.totalPages || 1))
+const catalogGender = computed(() => String(props.gender || '').trim().toLowerCase())
+const collectionTitle = computed(() => {
+  const audience = catalogGender.value ? `${capitalize(catalogGender.value)} ` : ''
+  if (discountOnly.value) return `${audience}Sale`.trim()
+  if (sort.value === 'newest') return `${audience}New Arrivals`.trim()
+  return catalogGender.value ? `${capitalize(catalogGender.value)} Collection` : 'All Products'
+})
 
 const categoryOptions = computed(() => {
   const seen = new Set()
@@ -279,7 +286,13 @@ const categoryOptions = computed(() => {
 })
 
 function countFor(category) {
-  return Number(category?.counts?.[props.gender] || 0)
+  return Number(category?.counts?.[catalogGender.value] ?? category?.counts?.total ?? 0)
+}
+
+function capitalize(value) {
+  const text = String(value || '').trim()
+  if (!text) return ''
+  return `${text.charAt(0).toUpperCase()}${text.slice(1)}`
 }
 
 const activeFilterCount = computed(() => {
@@ -317,7 +330,7 @@ async function fetchProducts({ append = false } = {}) {
   try {
     const res = await http.get('/products', {
       params: {
-        gender: props.gender,
+        gender: catalogGender.value || undefined,
         page: page.value,
         limit: perPageLimit.value,
         sort: sort.value,
@@ -463,16 +476,24 @@ function updateViewportFlags() {
   isMobile.value = window.innerWidth < MOBILE_BREAKPOINT
 }
 
+function hydrateFiltersFromRoute() {
+  selectedCategory.value = String(route.query.category || '')
+  sort.value = String(route.query.sort || 'recommend')
+  minPrice.value = sanitizePrice(route.query.minPrice)
+  maxPrice.value = sanitizePrice(route.query.maxPrice)
+  discountOnly.value = ["1", "true", "yes", "on"].includes(String(route.query.discount || '').toLowerCase())
+  draftCategory.value = selectedCategory.value
+  draftSort.value = sort.value
+  draftMinPrice.value = minPrice.value
+  draftMaxPrice.value = maxPrice.value
+  draftDiscountOnly.value = discountOnly.value
+}
+
 watch(
   () => props.gender,
   async () => {
     page.value = 1
-    selectedCategory.value = ''
-    sort.value = 'recommend'
-    minPrice.value = ''
-    maxPrice.value = ''
-    discountOnly.value = false
-    await router.replace({ query: {} })
+    hydrateFiltersFromRoute()
     await fetchProducts()
   }
 )
@@ -490,17 +511,8 @@ watch(enableLoadMore, () => {
 
 watch(
   () => [route.query.category, route.query.sort, route.query.minPrice, route.query.maxPrice, route.query.discount],
-  ([categoryValue, sortValue, minValue, maxValue, discountValue]) => {
-    selectedCategory.value = String(categoryValue || '')
-    sort.value = String(sortValue || 'recommend')
-    minPrice.value = sanitizePrice(minValue)
-    maxPrice.value = sanitizePrice(maxValue)
-    discountOnly.value = ["1", "true", "yes", "on"].includes(String(discountValue || '').toLowerCase())
-    draftCategory.value = selectedCategory.value
-    draftSort.value = sort.value
-    draftMinPrice.value = minPrice.value
-    draftMaxPrice.value = maxPrice.value
-    draftDiscountOnly.value = discountOnly.value
+  () => {
+    hydrateFiltersFromRoute()
     page.value = 1
     fetchProducts()
   }
@@ -509,16 +521,7 @@ watch(
 onMounted(async () => {
   updateViewportFlags()
   window.addEventListener('resize', updateViewportFlags)
-  selectedCategory.value = String(route.query.category || '')
-  sort.value = String(route.query.sort || 'recommend')
-  minPrice.value = sanitizePrice(route.query.minPrice)
-  maxPrice.value = sanitizePrice(route.query.maxPrice)
-  discountOnly.value = ["1", "true", "yes", "on"].includes(String(route.query.discount || '').toLowerCase())
-  draftCategory.value = selectedCategory.value
-  draftSort.value = sort.value
-  draftMinPrice.value = minPrice.value
-  draftMaxPrice.value = maxPrice.value
-  draftDiscountOnly.value = discountOnly.value
+  hydrateFiltersFromRoute()
   await loadMeta()
   await fetchProducts()
   hasHydrated.value = true

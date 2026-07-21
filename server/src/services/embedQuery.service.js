@@ -1,30 +1,20 @@
-const { spawn } = require("child_process");
+const MODEL_NAME = "Xenova/all-MiniLM-L6-v2";
 
-function embedQueryPython(text) {
-  return new Promise((resolve, reject) => {
-    const p = spawn("bash", ["-lc", `source .venv/bin/activate && python scripts/embed_query.py`], {
-      stdio: ["pipe", "pipe", "pipe"],
-    });
+let extractorPromise = null;
 
-    let out = "";
-    let err = "";
+function getExtractor() {
+  if (!extractorPromise) {
+    extractorPromise = import("@xenova/transformers").then(({ pipeline }) =>
+      pipeline("feature-extraction", MODEL_NAME)
+    );
+  }
+  return extractorPromise;
+}
 
-    p.stdout.on("data", (d) => (out += d.toString()));
-    p.stderr.on("data", (d) => (err += d.toString()));
-
-    p.on("close", (code) => {
-      if (code !== 0) return reject(new Error(err || `embed_query.py exited ${code}`));
-      try {
-        const vec = JSON.parse(out);
-        resolve(vec);
-      } catch (e) {
-        reject(new Error("Failed to parse embedding output: " + e.message));
-      }
-    });
-
-    p.stdin.write(JSON.stringify({ text }));
-    p.stdin.end();
-  });
+async function embedQueryPython(text) {
+  const extractor = await getExtractor();
+  const output = await extractor(String(text || ""), { pooling: "mean", normalize: true });
+  return Array.from(output.data);
 }
 
 module.exports = { embedQueryPython };

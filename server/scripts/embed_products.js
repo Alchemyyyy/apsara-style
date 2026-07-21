@@ -1,12 +1,17 @@
 // One-time/backfill: generate product_embeddings rows for every active product.
-// Usage: DATABASE_URL="postgres://..." node scripts/embed_products.js
+// Usage: run from server/ with a .env present (DATABASE_URL or DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD),
+// or override inline: DATABASE_URL="postgres://..." node scripts/embed_products.js
+require("dotenv").config();
 const { Pool } = require("pg");
+const { databaseUrl } = require("../src/config/db.config");
 const { embedQueryPython } = require("../src/services/embedQuery.service");
 const { buildProductText } = require("../src/services/productEmbedding.service");
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = databaseUrl;
 if (!DATABASE_URL) {
-  throw new Error("Missing DATABASE_URL env var. Usage: DATABASE_URL=... node scripts/embed_products.js");
+  throw new Error(
+    "Missing DB config. Set DATABASE_URL or DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD in server/.env."
+  );
 }
 
 const CONCURRENCY = 8;

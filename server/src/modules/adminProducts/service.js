@@ -3,6 +3,17 @@ const adminProductsRepo = require("./repository");
 const db = require("../../db");
 const fs = require("fs/promises");
 const path = require("path");
+const { generateProductEmbedding } = require("../../services/productEmbedding.service");
+
+const TEXT_RELEVANT_FIELDS = ["title", "description", "gender", "category_id", "tags"];
+
+async function regenerateEmbedding(product) {
+  try {
+    await generateProductEmbedding(product);
+  } catch (err) {
+    console.error(`Failed to generate embedding for product ${product.id}:`, err);
+  }
+}
 
 const VALID_GENDERS = ["men", "women", "unisex"];
 const uploadsProductsDir = path.resolve(__dirname, "../../../uploads/products");
@@ -297,7 +308,9 @@ const create = async (body) => {
     await adminProductsRepo.replaceProductVariants({ productId: created.id, variants }, client);
 
     await client.query("COMMIT");
-    return getById(created.id);
+    const full = await getById(created.id);
+    await regenerateEmbedding(full);
+    return full;
   } catch (err) {
     await client.query("ROLLBACK");
     await removeLocalFiles(createdLocalUploadPaths);
@@ -361,14 +374,18 @@ const update = async (id, body) => {
     body.tags = buildCatalogTags(body, baseTags);
   }
 
+  const setKeys = [];
   for (const k of allowed) {
     if (body[k] !== undefined) {
       sets.push(`${k} = $${i++}`);
       params.push(body[k]);
+      setKeys.push(k);
     }
   }
 
   if (!sets.length && images === null && variants === null) throw appError("No fields to update", 400);
+
+  const shouldRegenerateEmbedding = setKeys.some((k) => TEXT_RELEVANT_FIELDS.includes(k));
 
   const client = await db.getClient();
   try {
@@ -393,7 +410,11 @@ const update = async (id, body) => {
     if (removedLocalUploadPaths.length) {
       await removeLocalFiles(removedLocalUploadPaths);
     }
-    return getById(id);
+    const full = await getById(id);
+    if (shouldRegenerateEmbedding) {
+      await regenerateEmbedding(full);
+    }
+    return full;
   } catch (err) {
     await client.query("ROLLBACK");
     if (incomingLocalUploadPaths.length) {

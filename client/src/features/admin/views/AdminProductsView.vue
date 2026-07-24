@@ -143,46 +143,6 @@
               <label class="form-label mb-1">Discount %</label>
               <input class="form-control" v-model.number="productForm.discount_percent" type="number" min="0" max="100" step="0.01" placeholder="%" @input="onDiscountPercentInput" />
             </div>
-            <div class="col-md-6">
-              <label class="form-label mb-1">Brand</label>
-              <input class="form-control" v-model="productForm.brand" placeholder="Brand name" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label mb-1">Parent SKU</label>
-              <input class="form-control" v-model="productForm.parent_sku" placeholder="Parent SKU" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label mb-1">Material</label>
-              <input class="form-control" v-model="productForm.material" placeholder="e.g. Cotton blend" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label mb-1">Fit</label>
-              <input class="form-control" v-model="productForm.fit" placeholder="e.g. Regular fit" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label mb-1">Size Guide</label>
-              <input class="form-control" v-model="productForm.size_guide" placeholder="URL or short note" />
-            </div>
-            <div class="col-12">
-              <label class="form-label mb-1">Care Instructions</label>
-              <textarea class="form-control" v-model="productForm.care" rows="2" placeholder="Wash care / fabric care"></textarea>
-            </div>
-            <div class="col-12">
-              <label class="form-label mb-1">Model Note</label>
-              <input class="form-control" v-model="productForm.model_note" placeholder="e.g. Model is 175cm and wears M" />
-            </div>
-            <div class="col-12">
-              <label class="form-label mb-1">Style Tags</label>
-              <input class="form-control" v-model="productForm.style_tags" placeholder="casual, office, summer" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label mb-1">Meta Title</label>
-              <input class="form-control" v-model="productForm.meta_title" placeholder="SEO title" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label mb-1">Meta Description</label>
-              <input class="form-control" v-model="productForm.meta_description" placeholder="SEO description" />
-            </div>
             <div class="col-12">
               <label class="form-label mb-1">Description</label>
               <textarea class="form-control" v-model="productForm.description" rows="2" placeholder="Description"></textarea>

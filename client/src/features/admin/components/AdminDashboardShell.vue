@@ -143,7 +143,6 @@ const canAccessProducts = computed(() => roles.value.some((r) => ['super_admin',
 const canAccessOrders = computed(() => roles.value.some((r) => ['super_admin', 'ops_admin'].includes(r)))
 const canAccessReturns = computed(() => roles.value.some((r) => ['super_admin', 'ops_admin'].includes(r)))
 const canAccessAnalytics = computed(() => roles.value.some((r) => ['super_admin', 'ops_admin', 'catalog_admin'].includes(r)))
-const canAccessAuditLogs = computed(() => roles.value.includes('super_admin'))
 const showQuickStats = computed(() => ['adminOrders', 'adminAnalytics'].includes(String(route.name || '')))
 
 const navItems = computed(() => {
@@ -151,7 +150,6 @@ const navItems = computed(() => {
   if (canAccessOrders.value) items.push({ label: 'Orders', name: 'adminOrders', icon: 'O' })
   if (canAccessReturns.value) items.push({ label: 'Returns', name: 'adminReturns', icon: 'R' })
   if (canAccessAnalytics.value) items.push({ label: 'Analytics', name: 'adminAnalytics', icon: 'A' })
-  if (canAccessAuditLogs.value) items.push({ label: 'Audit Logs', name: 'adminAuditLogs', icon: 'L' })
   return items
 })
 

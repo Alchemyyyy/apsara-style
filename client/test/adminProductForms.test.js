@@ -27,22 +27,12 @@ test('productToForm normalizes nested product metadata', () => {
     category_id: 'cat-1',
     base_price: 100,
     discount_price: 80,
-    tags: {
-      brand: 'SABY ORDER',
-      style_tags: ['evening', 'silk'],
-      seo: {
-        meta_title: 'Silk Dress',
-        meta_description: 'Evening silk dress',
-      },
-    },
     images: [{ url: 'https://example.com/dress.jpg', alt_text: 'Dress', sort_order: 2 }],
     variants: [{ size: 'S', color: 'Gold', sku: 'DRESS-S-GOLD', stock: 5 }],
     is_active: true,
   })
 
   assert.equal(form.discount_percent, 20)
-  assert.equal(form.brand, 'SABY ORDER')
-  assert.equal(form.style_tags, 'evening, silk')
   assert.equal(form.images[0].sort_order, 2)
   assert.equal(form.variants[0].stock, 5)
   assert.equal(form.is_active, true)

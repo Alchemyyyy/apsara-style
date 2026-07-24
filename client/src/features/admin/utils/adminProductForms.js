@@ -16,16 +16,6 @@ export function createEmptyProductForm() {
     base_price: '',
     discount_price: '',
     discount_percent: '',
-    brand: '',
-    parent_sku: '',
-    material: '',
-    care: '',
-    fit: '',
-    model_note: '',
-    size_guide: '',
-    style_tags: '',
-    meta_title: '',
-    meta_description: '',
     images: [emptyImage(0)],
     variants: [emptyVariant()],
     is_active: true,
@@ -37,9 +27,6 @@ export function round2(n) {
 }
 
 export function productToForm(product = {}) {
-  const tags = product.tags || {}
-  const seo = tags.seo || {}
-
   return {
     title: product.title || '',
     slug: product.slug || '',
@@ -52,16 +39,6 @@ export function productToForm(product = {}) {
       Number(product.discount_price) > 0 && Number(product.base_price) > Number(product.discount_price)
         ? round2(((Number(product.base_price) - Number(product.discount_price)) / Number(product.base_price)) * 100)
         : '',
-    brand: tags.brand || '',
-    parent_sku: tags.parent_sku || '',
-    material: tags.material || '',
-    care: tags.care || '',
-    fit: tags.fit || '',
-    model_note: tags.model_note || '',
-    size_guide: tags.size_guide || '',
-    style_tags: Array.isArray(tags.style_tags) ? tags.style_tags.join(', ') : '',
-    meta_title: seo.meta_title || '',
-    meta_description: seo.meta_description || '',
     images: Array.isArray(product.images) && product.images.length
       ? product.images.map((img, idx) => ({
         url: img.url || '',
@@ -104,7 +81,6 @@ export function buildProductPayload(form = {}) {
     discount_percent: undefined,
     category_id: form.category_id || null,
     discount_price: form.discount_price || null,
-    style_tags: form.style_tags || '',
     images,
     variants,
   }
